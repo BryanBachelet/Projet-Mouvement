@@ -1,0 +1,35 @@
+# =============== #
+# Unity generated #
+# =============== #
+Temp/
+Library/
+
+# ===================================== #
+# Visual Studio / MonoDevelop generated #
+# ===================================== #
+ExportedObj/
+obj/
+.vs/
+*.svd
+.userprefs
+/.csproj
+*.csproj
+*.pidb
+.suo
+/.sln
+*.sln
+*.user
+*.unityproj
+.booproj
+*.ress
+# ============ #
+# OS generated #
+# ============ #
+.DS_Store
+.DSStore?
+.
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+/fmod_editor.log
