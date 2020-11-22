@@ -21,13 +21,13 @@ public class Player_BasicMouvement : MonoBehaviour
     public float accelerationValue = 1;
     public float deccelerationValue = 1;
     public float maxValue = 10;
+    public ForceMode forceMode = ForceMode.Impulse;
 
-    [SerializeField]
+    [SerializeField] [Header("Feedback")]
     private Text uiText;
-    
+
     private float currentSpeed;
     private Rigidbody rigidbodyPlayer;
-
     private float tempsEcouleResetTemps = 0;
 
     // Start is called before the first frame update
@@ -67,9 +67,10 @@ public class Player_BasicMouvement : MonoBehaviour
 
 
         //Player acceleration
-        rigidbodyPlayer.AddForce(transform.forward * front * accelerationValue, ForceMode.Acceleration);
-        rigidbodyPlayer.AddForce(transform.right * side * accelerationValue, ForceMode.Acceleration);
-        rigidbodyPlayer.velocity = Vector3.ClampMagnitude(rigidbodyPlayer.velocity, 10f);
+        Vector3 dirMouvement = new Vector3(side, 0, front).normalized;
+        rigidbodyPlayer.AddForce(transform.forward * dirMouvement.z * accelerationValue,forceMode);
+        rigidbodyPlayer.AddForce(transform.right * dirMouvement.x * accelerationValue, forceMode);
+        rigidbodyPlayer.velocity = Vector3.ClampMagnitude(rigidbodyPlayer.velocity, maxValue);
 
 
     }

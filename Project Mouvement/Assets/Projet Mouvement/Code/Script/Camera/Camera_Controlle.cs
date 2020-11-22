@@ -36,8 +36,8 @@ public class Camera_Controlle : MonoBehaviour
 
      
         // Camera Movement X & Y
-        Vector3 Addrot = new Vector3(MouseInputY * speed_CameraY * Time.deltaTime, MouseInputX * speed_CameraX * Time.deltaTime, 0);
-        Vector3 currentRot = transform.rotation.eulerAngles + Addrot;
+        Vector3 addRot = new Vector3(MouseInputY * speed_CameraY * Time.deltaTime, MouseInputX * speed_CameraX * Time.deltaTime, 0);
+        Vector3 currentRot = transform.rotation.eulerAngles + addRot;
 
         currentRot.x = SetNegativeAngle(currentRot.x);
         
@@ -52,13 +52,11 @@ public class Camera_Controlle : MonoBehaviour
 
     private float SetNegativeAngle(float angle)
     {
-
         if (angle > 260)
         {
             angle = -360 + angle;
         }
 
         return angle;
-
     }
 }
