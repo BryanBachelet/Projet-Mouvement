@@ -145,6 +145,8 @@ GameObject:
   - component: {fileID: 9173039518247225920}
   - component: {fileID: 9173039518247225924}
   - component: {fileID: 9173039518247225925}
+  - component: {fileID: 7458206074360347893}
+  - component: {fileID: 1673983910457212574}
   m_Layer: 0
   m_Name: Player Body
   m_TagString: Untagged
@@ -247,6 +249,8 @@ MonoBehaviour:
   deccelerationValue: 1
   maxValue: 2
   forceMode: 1
+  controllerGamePad: 0
+  uiText: {fileID: 0}
 --- !u!54 &9173039518247225925
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -263,3 +267,27 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 80
   m_CollisionDetection: 0
+--- !u!114 &7458206074360347893
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9173039518247225950}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38116ea7f9aacfe45b782b81527a4b12, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1673983910457212574
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9173039518247225950}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c7611a42c542cf643992f0842422f69b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

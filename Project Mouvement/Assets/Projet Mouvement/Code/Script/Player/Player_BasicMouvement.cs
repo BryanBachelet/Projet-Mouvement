@@ -34,8 +34,7 @@ public class Player_BasicMouvement : Player_Settings
 
     // Start is called before the first frame update
     void Start()
-    {
-        
+    {  
         rigidbodyPlayer = GetComponent<Rigidbody>();
         IsGamepad = controllerGamePad;
     }
@@ -91,7 +90,7 @@ public class Player_BasicMouvement : Player_Settings
         }
         axisValue = Mathf.Clamp(axisValue, -1, 1);
 
-        Debug.Log("Axis =" + axisValue);
+     
         return axisValue;
     }
 }

@@ -607,6 +607,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: ---Player----
       objectReference: {fileID: 0}
+    - target: {fileID: 9173039518247225921, guid: 497339ffb7e0e834ca63d37ce0bb4c64,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 4.34
+      objectReference: {fileID: 0}
     - target: {fileID: 9173039518247225924, guid: 497339ffb7e0e834ca63d37ce0bb4c64,
         type: 3}
       propertyPath: uiText
@@ -616,6 +621,11 @@ PrefabInstance:
         type: 3}
       propertyPath: controllerGamePadInspector
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9173039518247225924, guid: 497339ffb7e0e834ca63d37ce0bb4c64,
+        type: 3}
+      propertyPath: controllerGamePad
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 497339ffb7e0e834ca63d37ce0bb4c64, type: 3}
