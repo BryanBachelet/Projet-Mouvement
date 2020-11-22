@@ -7,7 +7,6 @@ using UnityEngine.UI;
 public class Player_BasicMouvement : MonoBehaviour
 {
     static public bool controllerGamePad = false;
-    public bool controllerGamePadInspector = false;
     //Need to inherited to player setting
 
     // Register Input of mouvement
@@ -23,6 +22,9 @@ public class Player_BasicMouvement : MonoBehaviour
     public float maxValue = 10;
     public ForceMode forceMode = ForceMode.Impulse;
 
+    [Header("Controlle Setting")]
+    public bool controllerGamePadInspector = false;
+
     [SerializeField] [Header("Feedback")]
     private Text uiText;
 
@@ -37,20 +39,11 @@ public class Player_BasicMouvement : MonoBehaviour
         rigidbodyPlayer = GetComponent<Rigidbody>();
     }
 
-    private void Update()
-    {
-        controllerGamePad = controllerGamePadInspector;
-    }
     void FixedUpdate()
     {
-        tempsEcouleResetTemps += Time.deltaTime;
-        if(tempsEcouleResetTemps >= 1)
-        {
-            uiText.text = ""+rigidbodyPlayer.velocity.magnitude;
-            tempsEcouleResetTemps = 0;
-        }
-        float front = 0;
-        float side = 0;
+  
+        float front,side = 0;
+     
         // Input of the player
         if (!controllerGamePad)
         {
@@ -63,9 +56,6 @@ public class Player_BasicMouvement : MonoBehaviour
             side = Input.GetAxis("Horizontal");
         }
 
-
-
-
         //Player acceleration
         Vector3 dirMouvement = new Vector3(side, 0, front).normalized;
         rigidbodyPlayer.AddForce(transform.forward * dirMouvement.z * accelerationValue,forceMode);
@@ -74,6 +64,18 @@ public class Player_BasicMouvement : MonoBehaviour
 
 
     }
+
+    private void Update()
+    {
+        controllerGamePad = controllerGamePadInspector;
+        tempsEcouleResetTemps += Time.deltaTime;
+        if (tempsEcouleResetTemps >= 1)
+        {
+            uiText.text = "" + rigidbodyPlayer.velocity.magnitude;
+            tempsEcouleResetTemps = 0;
+        }
+    }
+
 
     public float GetAxis(KeyCode Positif, KeyCode Negatif, bool Press)
     {
