@@ -22,12 +22,11 @@ public class Player_BasicMouvement : MonoBehaviour
     public float maxValue = 10;
     public ForceMode forceMode = ForceMode.Impulse;
 
-    [SerializeField]
+    [SerializeField] [Header("Feedback")]
     private Text uiText;
-    
+
     private float currentSpeed;
     private Rigidbody rigidbodyPlayer;
-
     private float tempsEcouleResetTemps = 0;
 
     // Start is called before the first frame update
