@@ -38,10 +38,9 @@ public class Player_BasicMouvement : MonoBehaviour
         // Input of the player
         float front = GetAxis(Forward, Back, true);
         float side = GetAxis(Right, Left, true);
+        
 
-        Debug.Log("Front = " +front);
-
-      
+        //Player acteleration
         rigidbodyPlayer.AddForce(transform.forward * front * accelerationValue, ForceMode.Acceleration);
         rigidbodyPlayer.AddForce(transform.right * side * accelerationValue, ForceMode.Acceleration);
         rigidbodyPlayer.velocity = Vector3.ClampMagnitude(rigidbodyPlayer.velocity, 10f);
