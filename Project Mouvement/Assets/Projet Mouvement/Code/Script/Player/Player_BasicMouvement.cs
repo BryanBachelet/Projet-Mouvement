@@ -6,7 +6,8 @@ using UnityEngine.UI;
 [RequireComponent(typeof(Rigidbody))]
 public class Player_BasicMouvement : MonoBehaviour
 {
-
+    static public bool controllerGamePad = false;
+    public bool controllerGamePadInspector = false;
     //Need to inherited to player setting
 
     // Register Input of mouvement
@@ -36,7 +37,10 @@ public class Player_BasicMouvement : MonoBehaviour
         rigidbodyPlayer = GetComponent<Rigidbody>();
     }
 
-
+    private void Update()
+    {
+        controllerGamePad = controllerGamePadInspector;
+    }
     void FixedUpdate()
     {
         tempsEcouleResetTemps += Time.deltaTime;
@@ -45,11 +49,21 @@ public class Player_BasicMouvement : MonoBehaviour
             uiText.text = ""+rigidbodyPlayer.velocity.magnitude;
             tempsEcouleResetTemps = 0;
         }
+        float front = 0;
+        float side = 0;
         // Input of the player
-        //float front = GetAxis(Forward, Back, true);
-        //float side = GetAxis(Right, Left, true);
-        float front = Input.GetAxis("Vertical");
-        float side = Input.GetAxis("Horizontal");
+        if (!controllerGamePad)
+        {
+            front = GetAxis(Forward, Back, true);
+            side = GetAxis(Right, Left, true);
+        }
+        else
+        {
+            front = Input.GetAxis("Vertical");
+            side = Input.GetAxis("Horizontal");
+        }
+
+
 
 
         //Player acceleration

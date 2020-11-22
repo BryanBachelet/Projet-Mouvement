@@ -20,9 +20,20 @@ public class Camera_Controlle : MonoBehaviour
 
     void Update()
     {
+        float MouseInputX = 0;
+        float MouseInputY = 0;
         // Get Mouse Input
-        float MouseInputX = Input.GetAxis("Mouse X");
-        float MouseInputY = -Input.GetAxis("Mouse Y");
+        if (!Player_BasicMouvement.controllerGamePad)
+        {
+            MouseInputX = Input.GetAxis("Mouse X");
+            MouseInputY = -Input.GetAxis("Mouse Y");
+        }
+        else
+        {
+            MouseInputX = Input.GetAxis("Horizontal2");
+            MouseInputY = Input.GetAxis("Vertical2");
+        }
+
      
         // Camera Movement X & Y
         Vector3 addRot = new Vector3(MouseInputY * speed_CameraY * Time.deltaTime, MouseInputX * speed_CameraX * Time.deltaTime, 0);
