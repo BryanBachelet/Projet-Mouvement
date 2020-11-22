@@ -4,9 +4,9 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(Rigidbody))]
-public class Player_BasicMouvement : MonoBehaviour
+public class Player_BasicMouvement : Player_Settings
 {
-    static public bool controllerGamePad = false;
+  
     //Need to inherited to player setting
 
     // Register Input of mouvement
@@ -23,7 +23,7 @@ public class Player_BasicMouvement : MonoBehaviour
     public ForceMode forceMode = ForceMode.Impulse;
 
     [Header("Controlle Setting")]
-    public bool controllerGamePadInspector = false;
+    public bool controllerGamePad = false;
 
     [SerializeField] [Header("Feedback")]
     private Text uiText;
@@ -35,8 +35,9 @@ public class Player_BasicMouvement : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        //Initiate Component
+        
         rigidbodyPlayer = GetComponent<Rigidbody>();
+        IsGamepad = controllerGamePad;
     }
 
     void FixedUpdate()
@@ -45,7 +46,7 @@ public class Player_BasicMouvement : MonoBehaviour
         float front,side = 0;
      
         // Input of the player
-        if (!controllerGamePad)
+        if (!IsGamepad)
         {
             front = GetAxis(Forward, Back, true);
             side = GetAxis(Right, Left, true);
@@ -67,7 +68,7 @@ public class Player_BasicMouvement : MonoBehaviour
 
     private void Update()
     {
-        controllerGamePad = controllerGamePadInspector;
+      
         tempsEcouleResetTemps += Time.deltaTime;
         if (tempsEcouleResetTemps >= 1)
         {

@@ -4,6 +4,5 @@ using UnityEngine;
 
 public class Player_Settings : MonoBehaviour
 {
-    [Header("Option")]
-    public bool IsGamepad;
+    protected bool IsGamepad;
 }
