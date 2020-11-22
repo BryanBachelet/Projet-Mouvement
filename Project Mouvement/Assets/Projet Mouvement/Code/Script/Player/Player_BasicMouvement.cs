@@ -52,7 +52,7 @@ public class Player_BasicMouvement : MonoBehaviour
         float side = Input.GetAxis("Horizontal");
 
 
-        //Player acteleration
+        //Player acceleration
         rigidbodyPlayer.AddForce(transform.forward * front * accelerationValue, ForceMode.Acceleration);
         rigidbodyPlayer.AddForce(transform.right * side * accelerationValue, ForceMode.Acceleration);
         rigidbodyPlayer.velocity = Vector3.ClampMagnitude(rigidbodyPlayer.velocity, 10f);
