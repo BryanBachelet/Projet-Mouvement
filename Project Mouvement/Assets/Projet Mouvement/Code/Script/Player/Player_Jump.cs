@@ -5,16 +5,14 @@ using UnityEngine;
 public class Player_Jump : Player_Settings
 {
     [Header("Jump Caracteristique")]
-    // public float jumpValue ;
+    public float jumpValue = 10;
+    public float gravityForce = 10;
     public int jumpNumber;
     public int jumpCount;
-    //  public float jumpUpTime;
-    public float jump_HeightMax = 10;
-    public float jump_speed = 7.5f;
 
+    public float jumpTimerGravity =1;
 
-    private bool isFall;
-    private float jumpUpCount;
+    private float jump_CountGravity;  
     private Rigidbody player_Rigid;
     private Player_CheckState checkState;
     // Start is called before the first frame update
@@ -28,17 +26,22 @@ public class Player_Jump : Player_Settings
     void FixedUpdate()
     {
 
-        if (jumpCount < jumpNumber )
+        if (jumpCount < jumpNumber || player_Surface == Player_Surface.Wall)
         {
-            if (Input.GetKeyDown(KeyCode.Joystick1Button4) || Input.GetKeyDown(KeyCode.Space))
+            if (Input.GetKeyDown(KeyCode.JoystickButton0) || Input.GetKeyDown(KeyCode.Space))
             {
-                player_MouvementUp = Player_MouvementUp.Jump;
-
-                player_Rigid.AddForce(Vector3.up * jump_HeightMax, ForceMode.Impulse);
-
-                jumpCount++;
-
+                Jump();
             }
+        }
+
+        if (jump_CountGravity > jumpTimerGravity)
+        {
+            player_Rigid.AddForce(-Vector3.up * gravityForce, ForceMode.Acceleration);
+            
+        }
+        else
+        {
+            jump_CountGravity += Time.deltaTime;
         }
 
         if (player_Rigid.velocity.y <= -1f)
@@ -49,11 +52,19 @@ public class Player_Jump : Player_Settings
         {
 
             jumpCount = 0;
+            jump_CountGravity = 0;
             player_MouvementUp = Player_MouvementUp.Null;
         }
 
 
     }
-
+     
+    private void Jump()
+    {
+        player_MouvementUp = Player_MouvementUp.Jump;
+        player_Rigid.AddForce(Vector3.up * jumpValue, ForceMode.Impulse);
+        jumpCount++;
+        
+    }
 
 }
