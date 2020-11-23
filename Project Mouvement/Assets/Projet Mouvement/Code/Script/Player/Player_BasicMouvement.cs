@@ -29,7 +29,7 @@ public class Player_BasicMouvement : Player_Settings
     private Text uiText;
 
     private float currentSpeed;
-    private Rigidbody rigidbodyPlayer;
+    static public Rigidbody rigidbodyPlayer;
     private float tempsEcouleResetTemps = 0;
 
     // Start is called before the first frame update
@@ -49,6 +49,7 @@ public class Player_BasicMouvement : Player_Settings
         {
             front = GetAxis(Forward, Back, true);
             side = GetAxis(Right, Left, true);
+
         }
         else
         {

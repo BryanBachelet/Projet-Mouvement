@@ -46,7 +46,7 @@ public class Camera_Controlle : Player_Settings
         transform.rotation = Quaternion.Euler(currentRot);
         Vector3 playerRot = new Vector3(playerBody.transform.rotation.eulerAngles.x, currentRot.y, playerBody.transform.rotation.eulerAngles.z);
         playerBody.rotation = Quaternion.Euler(playerRot);
-        transform.position = new Vector3(playerBody.position.x, transform.position.y, playerBody.position.z);
+        transform.position = new Vector3(playerBody.position.x, playerBody.position.y + 0.5f, playerBody.position.z);
     }
 
     private float SetNegativeAngle(float angle)
