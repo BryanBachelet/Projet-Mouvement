@@ -18,7 +18,7 @@ RenderSettings:
   m_FogColor: {r: 0, g: 0.20677587, b: 0.3301887, a: 1}
   m_FogMode: 1
   m_FogDensity: 0.6
-  m_LinearFogStart: 8.35
+  m_LinearFogStart: 7.45
   m_LinearFogEnd: 208.49
   m_AmbientSkyColor: {r: 0.212, g: 0.227, b: 0.259, a: 1}
   m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
@@ -3750,6 +3750,7 @@ GameObject:
   - component: {fileID: 963194226}
   - component: {fileID: 963194229}
   - component: {fileID: 963194230}
+  - component: {fileID: 963194231}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -3897,6 +3898,70 @@ MonoBehaviour:
   playerBody: {fileID: 1248519088}
   speed_CameraX: 180
   speed_CameraY: 180
+--- !u!114 &963194231
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 963194225}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 85bcd5624085d234e9cda73498433789, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  myVolumePPP: {fileID: 1157936755}
+  myC_AIntensity: {fileID: 0}
+  ani_CurveSpeed:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 0.3
+      inSlope: 0.29623532
+      outSlope: 0.29623532
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.059903145
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  timeMaxSpeed: 1
+  ani_CurveAcceleration:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 60
+      inSlope: 3.3239017
+      outSlope: 3.3239017
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.065149955
+    - serializedVersion: 3
+      time: 11
+      value: 75
+      inSlope: -0.08462482
+      outSlope: -0.08462482
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.60806614
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  timeMaxAcceleration: 1
 --- !u!1 &969363180
 GameObject:
   m_ObjectHideFlags: 0
@@ -5295,10 +5360,10 @@ MonoBehaviour:
   Back: 115
   Left: 113
   Right: 100
-  accelerationValue: 10
-  deccelerationValue: 1
-  maxValue: 2
-  forceMode: 1
+  accelerationValue: 30
+  deccelerationValue: 15
+  maxValue: 20
+  forceMode: 5
   controllerGamePad: 1
   uiText: {fileID: 1428015727}
 --- !u!114 &1248519094
@@ -5315,7 +5380,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   JumpValue: 100
   Grounded: 0
-  JumpNumber: 1
+  JumpNumber: 3
   JumpCount: 0
 --- !u!1 &1273809095
 GameObject:
@@ -7515,7 +7580,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1915678307}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -14.75, y: 2.5, z: -0.29319608}
+  m_LocalPosition: {x: -14.75, y: 2.5, z: -0.29319}
   m_LocalScale: {x: 10, y: 5, z: 20}
   m_Children: []
   m_Father: {fileID: 521801383}
