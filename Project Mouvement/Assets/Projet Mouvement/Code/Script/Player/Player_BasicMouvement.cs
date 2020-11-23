@@ -6,7 +6,7 @@ using UnityEngine.UI;
 [RequireComponent(typeof(Rigidbody))]
 public class Player_BasicMouvement : Player_Settings
 {
-  
+
     //Need to inherited to player setting
 
     // Register Input of mouvement
@@ -25,28 +25,29 @@ public class Player_BasicMouvement : Player_Settings
     [Header("Controlle Setting")]
     public bool controllerGamePad = false;
 
-    [SerializeField] [Header("Feedback")]
+    [SerializeField]
+    [Header("Feedback")]
     private Text uiText;
 
     private float currentSpeed;
     static public Rigidbody rigidbodyPlayer;
     CameraVisualEffect myCVEscript;
     private float tempsEcouleResetTemps = 0;
+    private Player_Jump player_Jump;
 
     // Start is called before the first frame update
     void Start()
-    {  
+    {
         rigidbodyPlayer = GetComponent<Rigidbody>();
+        player_Jump = GetComponent<Player_Jump>();
         IsGamepad = controllerGamePad;
         myCVEscript = Camera.main.GetComponent<CameraVisualEffect>();
     }
 
     void FixedUpdate()
     {
+        float front, side = 0;
 
-
-        float front,side = 0;
-     
         // Input of the player
         if (!IsGamepad)
         {
@@ -62,9 +63,20 @@ public class Player_BasicMouvement : Player_Settings
 
         //Player acceleration
         Vector3 dirMouvement = new Vector3(side, 0, front).normalized;
-        rigidbodyPlayer.AddForce(transform.forward * dirMouvement.z * accelerationValue,forceMode);
-        rigidbodyPlayer.AddForce(transform.right * dirMouvement.x * accelerationValue, forceMode);
-        rigidbodyPlayer.velocity = Vector3.ClampMagnitude(rigidbodyPlayer.velocity, maxValue);
+        if (!Physics.Raycast(transform.position , dirMouvement, 0.6f))
+        {
+            rigidbodyPlayer.AddForce(transform.forward * dirMouvement.z * accelerationValue, forceMode);
+            rigidbodyPlayer.AddForce(transform.right * dirMouvement.x * accelerationValue, forceMode);
+
+            Vector3 mouvementPlayer = new Vector3(rigidbodyPlayer.velocity.x, 0, rigidbodyPlayer.velocity.z);
+            mouvementPlayer = Vector3.ClampMagnitude(mouvementPlayer, maxValue);
+            mouvementPlayer.y = rigidbodyPlayer.velocity.y;
+            rigidbodyPlayer.velocity = mouvementPlayer;
+        }
+
+        //Clamp velocity on Z & X axes
+
+
 
 
     }
@@ -94,7 +106,7 @@ public class Player_BasicMouvement : Player_Settings
         }
         axisValue = Mathf.Clamp(axisValue, -1, 1);
 
-     
+
         return axisValue;
     }
 }

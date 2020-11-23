@@ -2,46 +2,58 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Player_Jump : MonoBehaviour
+public class Player_Jump : Player_Settings
 {
-    public float JumpValue;
-    public  bool Grounded;
-    public int JumpNumber;
-    public int JumpCount;
+    [Header("Jump Caracteristique")]
+    // public float jumpValue ;
+    public int jumpNumber;
+    public int jumpCount;
+    //  public float jumpUpTime;
+    public float jump_HeightMax = 10;
+    public float jump_speed = 7.5f;
 
-    Collider m_Collider;
-    RaycastHit m_Hit;
+
+    private bool isFall;
+    private float jumpUpCount;
+    private Rigidbody player_Rigid;
+    private Player_CheckState checkState;
     // Start is called before the first frame update
     void Start()
     {
-        m_Collider = gameObject.GetComponent<CapsuleCollider>();
+        player_Rigid = GetComponent<Rigidbody>();
+        checkState = GetComponent<Player_CheckState>();
     }
 
     // Update is called once per frame
     void FixedUpdate()
     {
-        if(Grounded || JumpCount < JumpNumber)
+
+        if (jumpCount < jumpNumber )
         {
-            if (Input.GetKeyDown(KeyCode.Joystick1Button4)|| Input.GetKeyDown(KeyCode.Space))
+            if (Input.GetKeyDown(KeyCode.Joystick1Button4) || Input.GetKeyDown(KeyCode.Space))
             {
-                
-                Player_BasicMouvement.rigidbodyPlayer.AddForce(transform.up * JumpValue, ForceMode.Impulse);
-                Debug.Log("JUMP");
-                JumpCount++;
+                player_MouvementUp = Player_MouvementUp.Jump;
+
+                player_Rigid.AddForce(Vector3.up * jump_HeightMax, ForceMode.Impulse);
+
+                jumpCount++;
+
             }
         }
 
-        bool checkGround = Physics.BoxCast(m_Collider.bounds.center, transform.localScale, -transform.up, out m_Hit, transform.rotation, 1);
-        if (checkGround)
+        if (player_Rigid.velocity.y <= -1f)
         {
-            Grounded = true;
-            JumpCount = 0;
-            //Output the name of the Collider your Box hit
-            Debug.Log("Hit : " + m_Hit.collider.name);
+            player_MouvementUp = Player_MouvementUp.Fall;
         }
-        else
+        if (player_MouvementUp == Player_MouvementUp.Null)
         {
-            Grounded = false;
+
+            jumpCount = 0;
+            player_MouvementUp = Player_MouvementUp.Null;
         }
+
+
     }
+
+
 }
