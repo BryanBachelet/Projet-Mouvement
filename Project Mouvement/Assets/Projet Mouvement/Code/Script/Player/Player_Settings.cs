@@ -4,5 +4,5 @@ using UnityEngine;
 
 public class Player_Settings : Player_State
 {
-    protected bool IsGamepad;
+    protected static bool IsGamepad;
 }
