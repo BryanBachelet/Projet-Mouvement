@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Camera_Controlle : MonoBehaviour
+public class Camera_Controlle : Player_Settings
 {
     [Header("Référence")]
    public Transform playerBody;
@@ -20,10 +20,9 @@ public class Camera_Controlle : MonoBehaviour
 
     void Update()
     {
-        float MouseInputX = 0;
-        float MouseInputY = 0;
+        float MouseInputX , MouseInputY = 0;
         // Get Mouse Input
-        if (!Player_BasicMouvement.controllerGamePad)
+        if (!IsGamepad)
         {
             MouseInputX = Input.GetAxis("Mouse X");
             MouseInputY = -Input.GetAxis("Mouse Y");

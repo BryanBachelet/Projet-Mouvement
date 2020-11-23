@@ -4,10 +4,9 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(Rigidbody))]
-public class Player_BasicMouvement : MonoBehaviour
+public class Player_BasicMouvement : Player_Settings
 {
-    static public bool controllerGamePad = false;
-    public bool controllerGamePadInspector = false;
+  
     //Need to inherited to player setting
 
     // Register Input of mouvement
@@ -23,6 +22,9 @@ public class Player_BasicMouvement : MonoBehaviour
     public float maxValue = 10;
     public ForceMode forceMode = ForceMode.Impulse;
 
+    [Header("Controlle Setting")]
+    public bool controllerGamePad = false;
+
     [SerializeField] [Header("Feedback")]
     private Text uiText;
 
@@ -32,27 +34,18 @@ public class Player_BasicMouvement : MonoBehaviour
 
     // Start is called before the first frame update
     void Start()
-    {
-        //Initiate Component
+    {  
         rigidbodyPlayer = GetComponent<Rigidbody>();
+        IsGamepad = controllerGamePad;
     }
 
-    private void Update()
-    {
-        controllerGamePad = controllerGamePadInspector;
-    }
     void FixedUpdate()
     {
-        tempsEcouleResetTemps += Time.deltaTime;
-        if(tempsEcouleResetTemps >= 1)
-        {
-            uiText.text = ""+rigidbodyPlayer.velocity.magnitude;
-            tempsEcouleResetTemps = 0;
-        }
-        float front = 0;
-        float side = 0;
+  
+        float front,side = 0;
+     
         // Input of the player
-        if (!controllerGamePad)
+        if (!IsGamepad)
         {
             front = GetAxis(Forward, Back, true);
             side = GetAxis(Right, Left, true);
@@ -64,9 +57,6 @@ public class Player_BasicMouvement : MonoBehaviour
             side = Input.GetAxis("Horizontal");
         }
 
-
-
-
         //Player acceleration
         Vector3 dirMouvement = new Vector3(side, 0, front).normalized;
         rigidbodyPlayer.AddForce(transform.forward * dirMouvement.z * accelerationValue,forceMode);
@@ -75,6 +65,18 @@ public class Player_BasicMouvement : MonoBehaviour
 
 
     }
+
+    private void Update()
+    {
+      
+        tempsEcouleResetTemps += Time.deltaTime;
+        if (tempsEcouleResetTemps >= 1)
+        {
+            uiText.text = "" + rigidbodyPlayer.velocity.magnitude;
+            tempsEcouleResetTemps = 0;
+        }
+    }
+
 
     public float GetAxis(KeyCode Positif, KeyCode Negatif, bool Press)
     {
@@ -89,7 +91,7 @@ public class Player_BasicMouvement : MonoBehaviour
         }
         axisValue = Mathf.Clamp(axisValue, -1, 1);
 
-        Debug.Log("Axis =" + axisValue);
+     
         return axisValue;
     }
 }
