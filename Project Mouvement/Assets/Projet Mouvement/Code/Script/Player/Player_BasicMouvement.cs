@@ -61,7 +61,7 @@ public class Player_BasicMouvement : Player_Settings
 
         //Player acceleration
         Vector3 dirMouvement = new Vector3(side, 0, front).normalized;
-        if (!Physics.Raycast(transform.position -(Vector3.up*0.5f), dirMouvement, 0.6f))
+        if (!Physics.Raycast(transform.position , dirMouvement, 0.6f))
         {
             rigidbodyPlayer.AddForce(transform.forward * dirMouvement.z * accelerationValue, forceMode);
             rigidbodyPlayer.AddForce(transform.right * dirMouvement.x * accelerationValue, forceMode);
