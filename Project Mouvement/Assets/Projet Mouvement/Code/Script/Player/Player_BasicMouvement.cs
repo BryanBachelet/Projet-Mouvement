@@ -43,7 +43,8 @@ public class Player_BasicMouvement : Player_Settings
 
     void FixedUpdate()
     {
-        //myCVEscript.FieldOfViewValue(rigidbodyPlayer.velocity.magnitude);
+
+
         float front,side = 0;
      
         // Input of the player
@@ -70,7 +71,7 @@ public class Player_BasicMouvement : Player_Settings
 
     private void Update()
     {
-
+        myCVEscript.FieldOfViewValue(rigidbodyPlayer.velocity.magnitude);
         tempsEcouleResetTemps += Time.deltaTime;
         if (tempsEcouleResetTemps >= 1)
         {

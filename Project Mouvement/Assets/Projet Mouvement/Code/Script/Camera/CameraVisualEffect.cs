@@ -40,13 +40,15 @@ public class CameraVisualEffect : Player_Settings
         {
             tempsEcouleSpeed += Time.deltaTime;
         }
-        myC_AIntensity.intensity.value = ani_CurveAcceleration.Evaluate(tempsEcouleSpeed);
+        myC_AIntensity.intensity.value = ani_CurveSpeed.Evaluate(tempsEcouleSpeed);
     }
 
     public void FieldOfViewValue(float currentSpeed)
     {
         myCameraComponent.fieldOfView = ani_CurveAcceleration.Evaluate(currentSpeed);
     }
+    
+    
 
 
 }
