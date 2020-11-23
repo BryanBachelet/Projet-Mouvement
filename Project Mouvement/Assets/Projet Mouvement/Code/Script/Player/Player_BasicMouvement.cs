@@ -30,6 +30,7 @@ public class Player_BasicMouvement : Player_Settings
 
     private float currentSpeed;
     static public Rigidbody rigidbodyPlayer;
+    CameraVisualEffect myCVEscript;
     private float tempsEcouleResetTemps = 0;
 
     // Start is called before the first frame update
@@ -37,11 +38,12 @@ public class Player_BasicMouvement : Player_Settings
     {  
         rigidbodyPlayer = GetComponent<Rigidbody>();
         IsGamepad = controllerGamePad;
+        myCVEscript = Camera.main.GetComponent<CameraVisualEffect>();
     }
 
     void FixedUpdate()
     {
-  
+        //myCVEscript.FieldOfViewValue(rigidbodyPlayer.velocity.magnitude);
         float front,side = 0;
      
         // Input of the player
@@ -68,7 +70,7 @@ public class Player_BasicMouvement : Player_Settings
 
     private void Update()
     {
-      
+
         tempsEcouleResetTemps += Time.deltaTime;
         if (tempsEcouleResetTemps >= 1)
         {
