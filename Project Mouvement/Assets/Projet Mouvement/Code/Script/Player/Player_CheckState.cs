@@ -23,7 +23,7 @@ public class Player_CheckState : Player_Settings
            
             return;
         }
-        else if(Physics.Raycast(transform.position,transform.right,0.6f)|| Physics.Raycast(transform.position, transform.right, -0.6f))
+        else if(Physics.Raycast(transform.position,transform.right,1f)|| Physics.Raycast(transform.position, transform.right, -1f))
         {
             player_Surface = Player_Surface.Wall;
             return;

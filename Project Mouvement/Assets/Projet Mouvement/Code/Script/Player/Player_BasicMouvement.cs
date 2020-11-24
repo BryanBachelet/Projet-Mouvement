@@ -68,13 +68,13 @@ public class Player_BasicMouvement : Player_Settings
             rigidbodyPlayer.AddForce(transform.forward * dirMouvement.z * accelerationValue, forceMode);
             rigidbodyPlayer.AddForce(transform.right * dirMouvement.x * accelerationValue, forceMode);
 
+            //Clamp velocity on Z & X axes
             Vector3 mouvementPlayer = new Vector3(rigidbodyPlayer.velocity.x, 0, rigidbodyPlayer.velocity.z);
             mouvementPlayer = Vector3.ClampMagnitude(mouvementPlayer, maxValue);
             mouvementPlayer.y = rigidbodyPlayer.velocity.y;
             rigidbodyPlayer.velocity = mouvementPlayer;
         }
 
-        //Clamp velocity on Z & X axes
 
 
 
