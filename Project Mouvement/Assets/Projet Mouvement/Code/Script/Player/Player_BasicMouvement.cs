@@ -31,6 +31,7 @@ public class Player_BasicMouvement : Player_Settings
 
     private float currentSpeed;
     static public Rigidbody rigidbodyPlayer;
+    CameraVisualEffect myCVEscript;
     private float tempsEcouleResetTemps = 0;
     private Player_Jump player_Jump;
 
@@ -40,6 +41,7 @@ public class Player_BasicMouvement : Player_Settings
         rigidbodyPlayer = GetComponent<Rigidbody>();
         player_Jump = GetComponent<Player_Jump>();
         IsGamepad = controllerGamePad;
+        myCVEscript = Camera.main.GetComponent<CameraVisualEffect>();
     }
 
     void FixedUpdate()
@@ -81,7 +83,7 @@ public class Player_BasicMouvement : Player_Settings
 
     private void Update()
     {
-
+        myCVEscript.FieldOfViewValue(rigidbodyPlayer.velocity.magnitude);
         tempsEcouleResetTemps += Time.deltaTime;
         if (tempsEcouleResetTemps >= 1)
         {
