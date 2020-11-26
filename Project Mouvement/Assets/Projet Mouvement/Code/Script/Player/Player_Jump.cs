@@ -12,7 +12,8 @@ public class Player_Jump : Player_Settings
 
     public float jumpTimerGravity = 1;
 
-    private float jump_CountGravity;
+    public float jump_CountGravity;
+
     private Rigidbody player_Rigid;
     private Player_CheckState checkState;
 
@@ -34,11 +35,11 @@ public class Player_Jump : Player_Settings
         {
             if (Input.GetKeyDown(KeyCode.JoystickButton0) || Input.GetKeyDown(KeyCode.Space))
             {
-                Debug.Log("Jump");
                 Jump();
             }
         }
-
+                Debug.Log(player_Rigid.velocity);
+                      
         if (jump_CountGravity > jumpTimerGravity || player_MotorMouvement == Player_MotorMouvement.Slide)
         {
             player_Rigid.AddForce(-Vector3.up * gravityForce, ForceMode.Acceleration);
@@ -46,7 +47,7 @@ public class Player_Jump : Player_Settings
         }
         else
         {
-            jump_CountGravity += Time.deltaTime;
+            jump_CountGravity += Time.fixedDeltaTime;
         }
 
         if (player_Rigid.velocity.y <= -1f)
@@ -55,7 +56,6 @@ public class Player_Jump : Player_Settings
         }
         if (player_MouvementUp == Player_MouvementUp.Null)
         {
-
             jumpCount = 0;
             jump_CountGravity = 0;
             player_MouvementUp = Player_MouvementUp.Null;

@@ -22,8 +22,6 @@ public class Player_BasicMouvement : Player_Settings
     public float maxValue = 10;
     public ForceMode forceMode = ForceMode.Impulse;
 
-    [Header("Controlle Setting")]
-    public bool controllerGamePad = false;
 
     [SerializeField]
     [Header("Feedback")]
@@ -34,7 +32,7 @@ public class Player_BasicMouvement : Player_Settings
     CameraVisualEffect myCVEscript;
     private float tempsEcouleResetTemps = 0;
     private Player_Jump player_Jump;
-  
+
     // Start is called before the first frame update
     void Start()
     {
@@ -45,7 +43,7 @@ public class Player_BasicMouvement : Player_Settings
     {
         rigidbodyPlayer = GetComponent<Rigidbody>();
         player_Jump = GetComponent<Player_Jump>();
-        IsGamepad = controllerGamePad;
+
         myCVEscript = Camera.main.GetComponent<CameraVisualEffect>();
     }
 
@@ -68,20 +66,26 @@ public class Player_BasicMouvement : Player_Settings
 
         //Player acceleration
         Vector3 dirMouvement = new Vector3(side, 0, front).normalized;
-        Debug.DrawRay(transform.position - Vector3.up, transform.forward *10f,Color.blue);
-        if (!Physics.Raycast(transform.position- Vector3.up,transform.forward, 1f))
+        Debug.DrawRay(transform.position - Vector3.up, (transform.forward * front + transform.right * side) * 10f, Color.blue);
+        Debug.Log(DetectionCollision(front, side));
+        if (!DetectionCollision(front, side))
         {
             rigidbodyPlayer.AddForce(transform.forward * dirMouvement.z * accelerationValue, forceMode);
             rigidbodyPlayer.AddForce(transform.right * dirMouvement.x * accelerationValue, forceMode);
 
             //Clamp velocity on Z & X axes
-            Vector3 mouvementPlayer = new Vector3(rigidbodyPlayer.velocity.x, 0, rigidbodyPlayer.velocity.z);
-            mouvementPlayer = Vector3.ClampMagnitude(mouvementPlayer, maxValue);
-            mouvementPlayer.y = rigidbodyPlayer.velocity.y;
-            rigidbodyPlayer.velocity = mouvementPlayer;
+        Vector3 mouvementPlayer = new Vector3(rigidbodyPlayer.velocity.x, 0, rigidbodyPlayer.velocity.z);
+        mouvementPlayer = Vector3.ClampMagnitude(mouvementPlayer, maxValue);
+        mouvementPlayer.y = rigidbodyPlayer.velocity.y;
+        rigidbodyPlayer.velocity = mouvementPlayer;
         }
 
-        SetUpState(front,side);
+        if (side == 0 && front == 0 && rigidbodyPlayer.velocity.magnitude > 1)
+        {
+            rigidbodyPlayer.velocity = new Vector3(rigidbodyPlayer.velocity.x * 0.90f, rigidbodyPlayer.velocity.y, rigidbodyPlayer.velocity.z * 0.90f);
+        }
+
+        SetUpState(front, side);
 
     }
 
@@ -93,7 +97,15 @@ public class Player_BasicMouvement : Player_Settings
     }
 
 
-   
+    public bool DetectionCollision(float forward, float side)
+    {
+        bool IsDectect = false;
+        IsDectect = Physics.Raycast(transform.position - Vector3.up, transform.forward * forward + transform.right * side, 2f);
+        if (IsDectect) return IsDectect;
+        IsDectect = Physics.Raycast(transform.position + Vector3.up, transform.forward * forward + transform.right * side, 2f);
+
+        return IsDectect;
+    }
 
     public void SetUpState(float front, float side)
     {
