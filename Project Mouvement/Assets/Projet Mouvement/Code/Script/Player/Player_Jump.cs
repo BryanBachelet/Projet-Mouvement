@@ -34,6 +34,7 @@ public class Player_Jump : Player_Settings
         {
             if (Input.GetKeyDown(KeyCode.JoystickButton0) || Input.GetKeyDown(KeyCode.Space))
             {
+                Debug.Log("Jump");
                 Jump();
             }
         }
@@ -90,8 +91,6 @@ public class Player_Jump : Player_Settings
         {
             Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.down) * hit.distance, Color.yellow);
             surfaceHit = hit.collider;
-
-            Debug.Log("" + hit.collider.name);
         }
         else
         {

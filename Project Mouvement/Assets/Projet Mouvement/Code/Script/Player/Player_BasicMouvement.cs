@@ -34,9 +34,14 @@ public class Player_BasicMouvement : Player_Settings
     CameraVisualEffect myCVEscript;
     private float tempsEcouleResetTemps = 0;
     private Player_Jump player_Jump;
-
+  
     // Start is called before the first frame update
     void Start()
+    {
+        InitState();
+    }
+
+    public void InitState()
     {
         rigidbodyPlayer = GetComponent<Rigidbody>();
         player_Jump = GetComponent<Player_Jump>();
@@ -63,7 +68,8 @@ public class Player_BasicMouvement : Player_Settings
 
         //Player acceleration
         Vector3 dirMouvement = new Vector3(side, 0, front).normalized;
-        if (!Physics.Raycast(transform.position , dirMouvement, 0.6f))
+        Debug.DrawRay(transform.position - Vector3.up, transform.forward *10f,Color.blue);
+        if (!Physics.Raycast(transform.position- Vector3.up,transform.forward, 1f))
         {
             rigidbodyPlayer.AddForce(transform.forward * dirMouvement.z * accelerationValue, forceMode);
             rigidbodyPlayer.AddForce(transform.right * dirMouvement.x * accelerationValue, forceMode);
@@ -75,15 +81,42 @@ public class Player_BasicMouvement : Player_Settings
             rigidbodyPlayer.velocity = mouvementPlayer;
         }
 
-
-
-
+        SetUpState(front,side);
 
     }
 
+
     private void Update()
     {
-        myCVEscript.FieldOfViewValue(rigidbodyPlayer.velocity.magnitude);
+        EffectVisuel();
+        DebugUI();
+    }
+
+
+   
+
+    public void SetUpState(float front, float side)
+    {
+        if (player_MotorMouvement != Player_MotorMouvement.Slide)
+        {
+            if (front == 0 && side == 0)
+            {
+                player_MotorMouvement = Player_MotorMouvement.Null;
+            }
+            else
+            {
+                player_MotorMouvement = Player_MotorMouvement.Run;
+            }
+        }
+    }
+
+    public void EffectVisuel()
+    {
+        //myCVEscript.FieldOfViewValue(rigidbodyPlayer.velocity.magnitude);
+    }
+
+    public void DebugUI()
+    {
         tempsEcouleResetTemps += Time.deltaTime;
         if (tempsEcouleResetTemps >= 1)
         {
@@ -91,7 +124,6 @@ public class Player_BasicMouvement : Player_Settings
             tempsEcouleResetTemps = 0;
         }
     }
-
 
     public float GetAxis(KeyCode Positif, KeyCode Negatif, bool Press)
     {
