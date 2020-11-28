@@ -27,6 +27,9 @@ public class Player_BasicMouvement : Player_Settings
     [Header("Feedback")]
     private Text uiText;
 
+    private float front;
+    private float side;
+
     private float currentSpeed;
     static public Rigidbody rigidbodyPlayer;
     CameraVisualEffect myCVEscript;
@@ -49,8 +52,38 @@ public class Player_BasicMouvement : Player_Settings
 
     void FixedUpdate()
     {
-        float front, side = 0;
+        //Player acceleration
+        Vector3 dirMouvement = new Vector3(side, 0, front).normalized;
+        //------------------ DEBUG--------------------
+        Debug.DrawRay(transform.position - Vector3.up, (transform.forward * front + transform.right * side) * 10f, Color.blue);
+        Debug.Log(DetectionCollision(front, side));
+        //------------------ DEBUG--------------------
+        if (!DetectionCollision(front, side))
+        {
+            rigidbodyPlayer.AddForce(transform.forward * dirMouvement.z * accelerationValue, forceMode);
+            rigidbodyPlayer.AddForce(transform.right * dirMouvement.x * accelerationValue, forceMode);
 
+            //Clamp velocity on Z & X axes
+            Vector3 mouvementPlayer = new Vector3(rigidbodyPlayer.velocity.x, 0, rigidbodyPlayer.velocity.z);
+            mouvementPlayer = Vector3.ClampMagnitude(mouvementPlayer, maxValue);
+            mouvementPlayer.y = rigidbodyPlayer.velocity.y;
+            rigidbodyPlayer.velocity = mouvementPlayer;
+        }
+
+        if (side == 0 && front == 0 && rigidbodyPlayer.velocity.magnitude > 1)
+        {
+            rigidbodyPlayer.velocity = new Vector3(rigidbodyPlayer.velocity.x * 0.90f, rigidbodyPlayer.velocity.y, rigidbodyPlayer.velocity.z * 0.90f);
+        }
+
+        SetUpState(front, side);
+
+        front = 0;
+        side = 0;
+    }
+
+
+    private void Update()
+    {
         // Input of the player
         if (!IsGamepad)
         {
@@ -63,40 +96,17 @@ public class Player_BasicMouvement : Player_Settings
             front = Input.GetAxis("Vertical");
             side = Input.GetAxis("Horizontal");
         }
-
-        //Player acceleration
-        Vector3 dirMouvement = new Vector3(side, 0, front).normalized;
-        Debug.DrawRay(transform.position - Vector3.up, (transform.forward * front + transform.right * side) * 10f, Color.blue);
-        Debug.Log(DetectionCollision(front, side));
-        if (!DetectionCollision(front, side))
+        if (Input.GetKeyDown(KeyCode.T) || Input.GetKeyDown(KeyCode.Joystick1Button9))
         {
-            rigidbodyPlayer.AddForce(transform.forward * dirMouvement.z * accelerationValue, forceMode);
-            rigidbodyPlayer.AddForce(transform.right * dirMouvement.x * accelerationValue, forceMode);
-
-            //Clamp velocity on Z & X axes
-        Vector3 mouvementPlayer = new Vector3(rigidbodyPlayer.velocity.x, 0, rigidbodyPlayer.velocity.z);
-        mouvementPlayer = Vector3.ClampMagnitude(mouvementPlayer, maxValue);
-        mouvementPlayer.y = rigidbodyPlayer.velocity.y;
-        rigidbodyPlayer.velocity = mouvementPlayer;
+            IsGamepad = !IsGamepad;
         }
 
-        if (side == 0 && front == 0 && rigidbodyPlayer.velocity.magnitude > 1)
-        {
-            rigidbodyPlayer.velocity = new Vector3(rigidbodyPlayer.velocity.x * 0.90f, rigidbodyPlayer.velocity.y, rigidbodyPlayer.velocity.z * 0.90f);
-        }
 
-        SetUpState(front, side);
-
-    }
-
-
-    private void Update()
-    {
         EffectVisuel();
         DebugUI();
     }
 
-
+    // Check if Obstacle in the front direction
     public bool DetectionCollision(float forward, float side)
     {
         bool IsDectect = false;
@@ -132,7 +142,7 @@ public class Player_BasicMouvement : Player_Settings
         tempsEcouleResetTemps += Time.deltaTime;
         if (tempsEcouleResetTemps >= 1)
         {
-            uiText.text = "" + rigidbodyPlayer.velocity.magnitude;
+            uiText.text = "" + rigidbodyPlayer.velocity.magnitude.ToString("F0");
             tempsEcouleResetTemps = 0;
         }
     }
@@ -152,5 +162,10 @@ public class Player_BasicMouvement : Player_Settings
 
 
         return axisValue;
+    }
+
+    public void DeathReset()
+    {
+        StopPlayer(rigidbodyPlayer);
     }
 }

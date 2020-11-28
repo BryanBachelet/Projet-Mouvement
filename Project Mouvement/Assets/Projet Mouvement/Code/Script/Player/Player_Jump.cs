@@ -14,12 +14,17 @@ public class Player_Jump : Player_Settings
 
     public float jump_CountGravity;
 
-    private Rigidbody player_Rigid;
-    private Player_CheckState checkState;
 
     public LayerMask surfaceObstacle;
     Collider surfaceHit;
     public Vector3 offsetCollider;
+
+
+    private Rigidbody player_Rigid;
+    private Player_CheckState checkState;
+    private bool isKeyPress;
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -31,15 +36,12 @@ public class Player_Jump : Player_Settings
     void FixedUpdate()
     {
         CheckBorderSurface();
-        if (jumpCount < jumpNumber || player_Surface == Player_Surface.Wall)
+        if (isKeyPress)
         {
-            if (Input.GetKeyDown(KeyCode.JoystickButton0) || Input.GetKeyDown(KeyCode.Space))
-            {
-                Jump();
-            }
+            Jump();
+            isKeyPress = false;
         }
-                Debug.Log(player_Rigid.velocity);
-                      
+
         if (jump_CountGravity > jumpTimerGravity || player_MotorMouvement == Player_MotorMouvement.Slide)
         {
             player_Rigid.AddForce(-Vector3.up * gravityForce, ForceMode.Acceleration);
@@ -63,6 +65,18 @@ public class Player_Jump : Player_Settings
 
 
     }
+
+    public void Update()
+    {
+        if (jumpCount < jumpNumber || player_Surface == Player_Surface.Wall)
+        {
+            if (Input.GetKeyDown(KeyCode.JoystickButton0) || Input.GetKeyDown(KeyCode.Space))
+            {
+                isKeyPress = true;
+            }
+        }
+    }
+
 
     private void Jump()
     {
