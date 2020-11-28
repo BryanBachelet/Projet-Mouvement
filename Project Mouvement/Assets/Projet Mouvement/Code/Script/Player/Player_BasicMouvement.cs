@@ -54,6 +54,9 @@ public class Player_BasicMouvement : Player_Settings
     {
         //Player acceleration
         Vector3 dirMouvement = new Vector3(side, 0, front).normalized;
+        RaycastHit hit = new RaycastHit();
+        Physics.Raycast(transform.position, -Vector3.up, out hit, 10f);
+        Tool_SurfaceTopographie.GetTopo( hit.normal, transform);
         //------------------ DEBUG--------------------
         Debug.DrawRay(transform.position - Vector3.up, (transform.forward * front + transform.right * side) * 10f, Color.blue);
         Debug.Log(DetectionCollision(front, side));
@@ -110,7 +113,7 @@ public class Player_BasicMouvement : Player_Settings
     public bool DetectionCollision(float forward, float side)
     {
         bool IsDectect = false;
-        IsDectect = Physics.Raycast(transform.position - Vector3.up, transform.forward * forward + transform.right * side, 2f);
+        IsDectect = Physics.Raycast(transform.position - Vector3.up, (transform.forward * forward + transform.right * side), 2f);
         if (IsDectect) return IsDectect;
         IsDectect = Physics.Raycast(transform.position + Vector3.up, transform.forward * forward + transform.right * side, 2f);
 
