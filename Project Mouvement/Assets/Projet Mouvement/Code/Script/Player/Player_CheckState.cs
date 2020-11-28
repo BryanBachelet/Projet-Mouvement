@@ -15,7 +15,7 @@ public class Player_CheckState : Player_Settings
     void Update()
     {
         //Check if the player is on the ground
-        Debug.Log(player_Surface);
+
         if (Physics.Raycast(transform.position, -transform.up, 1.001f))
         {
             player_Surface = Player_Surface.Grounded;

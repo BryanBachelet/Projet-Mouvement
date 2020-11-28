@@ -12,14 +12,20 @@ public class Player_Jump : Player_Settings
 
     public float jumpTimerGravity = 1;
 
-    private float jump_CountGravity;
-    private Rigidbody player_Rigid;
-    private Player_CheckState checkState;
+    public float jump_CountGravity;
+
 
     public LayerMask surfaceObstacle;
     Collider surfaceHit;
     public Vector3 offsetCollider;
-    public float offsetJump;
+    public float offsetJump = 3;
+
+
+    private Rigidbody player_Rigid;
+    private Player_CheckState checkState;
+    private bool isKeyPress;
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -31,12 +37,10 @@ public class Player_Jump : Player_Settings
     void FixedUpdate()
     {
         CheckBorderSurface();
-        if (jumpCount < jumpNumber || player_Surface == Player_Surface.Wall)
+        if (isKeyPress)
         {
-            if (Input.GetKeyDown(KeyCode.JoystickButton0) || Input.GetKeyDown(KeyCode.Space))
-            {
-                Jump();
-            }
+            Jump();
+            isKeyPress = false;
         }
 
         if (jump_CountGravity > jumpTimerGravity || player_MotorMouvement == Player_MotorMouvement.Slide)
@@ -46,7 +50,7 @@ public class Player_Jump : Player_Settings
         }
         else
         {
-            jump_CountGravity += Time.deltaTime;
+            jump_CountGravity += Time.fixedDeltaTime;
         }
 
         if (player_Rigid.velocity.y <= -1f)
@@ -55,7 +59,6 @@ public class Player_Jump : Player_Settings
         }
         if (player_MouvementUp == Player_MouvementUp.Null)
         {
-
             jumpCount = 0;
             jump_CountGravity = 0;
             player_MouvementUp = Player_MouvementUp.Null;
@@ -63,6 +66,18 @@ public class Player_Jump : Player_Settings
 
 
     }
+
+    public void Update()
+    {
+        if (jumpCount < jumpNumber || player_Surface == Player_Surface.Wall)
+        {
+            if (Input.GetKeyDown(KeyCode.JoystickButton0) || Input.GetKeyDown(KeyCode.Space))
+            {
+                isKeyPress = true;
+            }
+        }
+    }
+
 
     private void Jump()
     {
@@ -75,10 +90,10 @@ public class Player_Jump : Player_Settings
         }
         else
         {
-            if (JulArea())
+            if (JumpBoostBorder())
             {
                 player_Rigid.AddForce(Vector3.up * (jumpValue + 15), ForceMode.Impulse);
-                Debug.Log("JUUUUUUUUUUUMMMMMMMMMMMMPPPPPPPPPPPPPPOOOOOOOOOOOOOUUUUUUUUUUUUUUUUUUUU ta mer");
+               
             }
             else
             {
@@ -112,11 +127,11 @@ public class Player_Jump : Player_Settings
 
     }
 
-    public bool JulArea()
+    public bool JumpBoostBorder()
     {
         if(surfaceHit != null)
         {
-            bool isOnJul;
+            
             Transform myHitTransform = surfaceHit.transform;
             if (surfaceHit.transform.position.z + ((myHitTransform.localScale.z - offsetJump) / 2) < transform.position.z && transform.position.z < ((myHitTransform.localScale.z) / 2))
             {

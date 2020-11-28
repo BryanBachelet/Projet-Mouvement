@@ -6,7 +6,7 @@ public class Player_State : MonoBehaviour
 {
     public enum Player_Body { Idle, Moving, Menu }
     public enum Player_MouvementUp { Jump, Grappin, Fall, Null }
-    public enum Player_MotorMouvement { Run, Slide, WallRun }
+    public enum Player_MotorMouvement { Run, Slide, WallRun, Null }
     public enum Player_Surface { Grounded, Wall, Air }
 
     protected static Player_Body player_Body = Player_Body.Idle;

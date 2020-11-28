@@ -11,10 +11,13 @@ public class Camera_Controlle : Player_Settings
     public float speed_CameraX = 180;
     public float speed_CameraY = 180;
 
+  
+
 
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
+        
     }
 
 
@@ -53,7 +56,8 @@ public class Camera_Controlle : Player_Settings
         }
         else
         {
-            transform.position = new Vector3(playerBody.position.x, playerBody.position.y + 0.5f, playerBody.position.z);
+          
+            transform.position = new Vector3(playerBody.position.x, playerBody.position.y + 0.5f , playerBody.position.z);
         }
 
     }
