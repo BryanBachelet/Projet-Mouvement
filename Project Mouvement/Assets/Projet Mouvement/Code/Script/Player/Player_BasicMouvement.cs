@@ -79,6 +79,7 @@ public class Player_BasicMouvement : Player_Settings
 
 
 
+
     }
 
     private void Update()
@@ -89,6 +90,10 @@ public class Player_BasicMouvement : Player_Settings
         {
             uiText.text = "" + rigidbodyPlayer.velocity.magnitude;
             tempsEcouleResetTemps = 0;
+        }
+        if(rigidbodyPlayer.velocity.magnitude < 1)
+        {
+            myCVEscript.resetSpeed = true;
         }
     }
 
