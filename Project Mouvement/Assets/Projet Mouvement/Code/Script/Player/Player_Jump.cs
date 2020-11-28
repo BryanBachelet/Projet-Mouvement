@@ -84,11 +84,21 @@ public class Player_Jump : Player_Settings
         jumpCount++;
         if (jump_CountGravity >= jumpTimerGravity)
         {
+
             player_Rigid.AddForce(Vector3.up * (jumpValue * jumpCount), ForceMode.Impulse);
         }
         else
         {
-            player_Rigid.AddForce(Vector3.up * jumpValue, ForceMode.Impulse);
+            if (JulArea())
+            {
+                player_Rigid.AddForce(Vector3.up * (jumpValue + 15), ForceMode.Impulse);
+                Debug.Log("JUUUUUUUUUUUMMMMMMMMMMMMPPPPPPPPPPPPPPOOOOOOOOOOOOOUUUUUUUUUUUUUUUUUUUU ta mer");
+            }
+            else
+            {
+                player_Rigid.AddForce(Vector3.up * jumpValue, ForceMode.Impulse);
+            }
+
         }
 
         jump_CountGravity = 0;
@@ -105,6 +115,8 @@ public class Player_Jump : Player_Settings
         {
             Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.down) * hit.distance, Color.yellow);
             surfaceHit = hit.collider;
+
+            //Debug.Log("" + hit.collider.name);
         }
         else
         {
@@ -114,6 +126,44 @@ public class Player_Jump : Player_Settings
 
     }
 
+    public bool JulArea()
+    {
+        if(surfaceHit != null)
+        {
+            bool isOnJul;
+            Transform myHitTransform = surfaceHit.transform;
+            if (surfaceHit.transform.position.z + ((myHitTransform.localScale.z - offsetJump) / 2) < transform.position.z && transform.position.z < ((myHitTransform.localScale.z) / 2))
+            {
+                return true;
+                //Debug.Log("In green zone");
+            }
+            else if (surfaceHit.transform.position.x + ((myHitTransform.localScale.x - offsetJump) / 2) < transform.position.x && transform.position.x < ((myHitTransform.localScale.x) / 2))
+            {
+                return true;
+                //Debug.Log("In green zone");
+            }
+            else if (surfaceHit.transform.position.z - ((myHitTransform.localScale.z - offsetJump) / 2) > transform.position.z && transform.position.z > ((myHitTransform.localScale.z) / 2))
+            {
+                return true;
+                //Debug.Log("In green zone");
+            }
+            else if (surfaceHit.transform.position.x - ((myHitTransform.localScale.x - offsetJump) / 2) > transform.position.x && transform.position.x > ((myHitTransform.localScale.x) / 2))
+            {
+                return true;
+                //Debug.Log("In green zone");
+            }
+            else
+            {
+                return false;
+            }
+
+        }
+        else
+        {
+            return false;
+        }
+
+    }
     private void OnDrawGizmos()
     {
         if (surfaceHit != null)
@@ -121,13 +171,41 @@ public class Player_Jump : Player_Settings
             Vector3 positionWorld = /*surfaceHit.transform.parent.position - surfaceHit.transform.parent.parent.position*/ /*surfaceHit.transform.position + surfaceHit.transform.parent.position + surfaceHit.transform.parent.parent.position*/ surfaceHit.transform.position;
             //Matrix4x4 rotationMatrix = Matrix4x4.TRS(positionWorld , surfaceHit.transform.parent.rotation, surfaceHit.transform.parent.lossyScale);
             //Gizmos.matrix = rotationMatrix;
-            Gizmos.DrawWireCube(new Vector3(positionWorld.x, positionWorld.y, positionWorld.z + ((surfaceHit.transform.localScale.z / 2) - 1)), new Vector3(surfaceHit.transform.localScale.x, surfaceHit.transform.localScale.y, 2));
-            Gizmos.DrawWireCube(new Vector3(positionWorld.x, positionWorld.y, positionWorld.z + (-(surfaceHit.transform.localScale.z / 2) + 1)), new Vector3(surfaceHit.transform.localScale.x, surfaceHit.transform.localScale.y, 2));
-            Gizmos.DrawWireCube(new Vector3(positionWorld.x + ((surfaceHit.transform.localScale.x / 2) - 1), positionWorld.y, positionWorld.z), new Vector3(2, surfaceHit.transform.localScale.y, surfaceHit.transform.localScale.z));
-            Gizmos.DrawWireCube(new Vector3(positionWorld.x + (-(surfaceHit.transform.localScale.x / 2) + 1), positionWorld.y, positionWorld.z), new Vector3(2, surfaceHit.transform.localScale.y, surfaceHit.transform.localScale.z));
+            MeshFilter myMesh = surfaceHit.GetComponent<MeshFilter>();
+            Transform myHitTransform = surfaceHit.transform;
 
-            Debug.Log(surfaceHit.bounds);
-            Debug.Log(positionWorld);
+            Gizmos.color = Color.green;
+            Gizmos.DrawMesh(myMesh.sharedMesh, 0, myHitTransform.position, myHitTransform.rotation, new Vector3(myHitTransform.localScale.x, myHitTransform.localScale.y, myHitTransform.localScale.z));
+            Gizmos.color = Color.red;
+            Gizmos.DrawMesh(myMesh.sharedMesh, 0, myHitTransform.position, myHitTransform.rotation, new Vector3(myHitTransform.localScale.x - offsetJump, myHitTransform.localScale.y, myHitTransform.localScale.z - offsetJump));
+            Gizmos.DrawLine(new Vector3(surfaceHit.transform.position.x, surfaceHit.transform.position.y + 1, surfaceHit.transform.position.z), new Vector3(surfaceHit.transform.position.x /*+ myHitTransform.localScale.x*/, surfaceHit.transform.position.y + 1, surfaceHit.transform.position.z + ((myHitTransform.localScale.z - offsetJump) / 2 )));
+            Gizmos.DrawLine(new Vector3(surfaceHit.transform.position.x, surfaceHit.transform.position.y + 1, surfaceHit.transform.position.z), new Vector3(surfaceHit.transform.position.x + ((myHitTransform.localScale.x - offsetJump) / 2), surfaceHit.transform.position.y + 1, surfaceHit.transform.position.z /*+ (myHitTransform.localScale.z / 2)*/));
+            Gizmos.DrawLine(new Vector3(surfaceHit.transform.position.x, surfaceHit.transform.position.y + 1, surfaceHit.transform.position.z), new Vector3(surfaceHit.transform.position.x /*+ myHitTransform.localScale.x*/, surfaceHit.transform.position.y + 1, surfaceHit.transform.position.z - ((myHitTransform.localScale.z - offsetJump) / 2)));
+            Gizmos.DrawLine(new Vector3(surfaceHit.transform.position.x, surfaceHit.transform.position.y + 1, surfaceHit.transform.position.z), new Vector3(surfaceHit.transform.position.x - ((myHitTransform.localScale.x - offsetJump) / 2), surfaceHit.transform.position.y + 1, surfaceHit.transform.position.z /*+ (myHitTransform.localScale.z / 2)*/));
+            Gizmos.color = Color.green;
+            Gizmos.DrawLine(new Vector3(surfaceHit.transform.position.x, surfaceHit.transform.position.y + 2, surfaceHit.transform.position.z), new Vector3(surfaceHit.transform.position.x /*+ myHitTransform.localScale.x*/, surfaceHit.transform.position.y + 2, surfaceHit.transform.position.z + ((myHitTransform.localScale.z) / 2)));
+            Gizmos.DrawLine(new Vector3(surfaceHit.transform.position.x, surfaceHit.transform.position.y + 2, surfaceHit.transform.position.z), new Vector3(surfaceHit.transform.position.x + ((myHitTransform.localScale.x) / 2), surfaceHit.transform.position.y + 2, surfaceHit.transform.position.z /*+ (myHitTransform.localScale.z / 2)*/));
+            Gizmos.DrawLine(new Vector3(surfaceHit.transform.position.x, surfaceHit.transform.position.y + 2, surfaceHit.transform.position.z), new Vector3(surfaceHit.transform.position.x /*+ myHitTransform.localScale.x*/, surfaceHit.transform.position.y + 2, surfaceHit.transform.position.z - ((myHitTransform.localScale.z) / 2)));
+            Gizmos.DrawLine(new Vector3(surfaceHit.transform.position.x, surfaceHit.transform.position.y + 2, surfaceHit.transform.position.z), new Vector3(surfaceHit.transform.position.x - ((myHitTransform.localScale.x) / 2), surfaceHit.transform.position.y + 2, surfaceHit.transform.position.z /*+ (myHitTransform.localScale.z / 2)*/));
+            //Gizmos.DrawWireCube(new Vector3(positionWorld.x, positionWorld.y, positionWorld.z + ((surfaceHit.transform.localScale.z / 2) - 1)), new Vector3(surfaceHit.transform.localScale.x, surfaceHit.transform.localScale.y, 2));
+            //Gizmos.DrawWireCube(new Vector3(positionWorld.x, positionWorld.y, positionWorld.z + (-(surfaceHit.transform.localScale.z / 2) + 1)), new Vector3(surfaceHit.transform.localScale.x, surfaceHit.transform.localScale.y, 2));
+            //Gizmos.DrawWireCube(new Vector3(positionWorld.x + ((surfaceHit.transform.localScale.x / 2) - 1), positionWorld.y, positionWorld.z), new Vector3(2, surfaceHit.transform.localScale.y, surfaceHit.transform.localScale.z));
+            //Gizmos.DrawWireCube(new Vector3(positionWorld.x + (-(surfaceHit.transform.localScale.x / 2) + 1), positionWorld.y, positionWorld.z), new Vector3(2, surfaceHit.transform.localScale.y, surfaceHit.transform.localScale.z));
+            if (surfaceHit.transform.position.z + ((myHitTransform.localScale.z - offsetJump) / 2) < transform.position.z && transform.position.z < ((myHitTransform.localScale.z) / 2))
+            {
+                //Debug.Log("In green zone");
+            }
+            else if (surfaceHit.transform.position.x + ((myHitTransform.localScale.x - offsetJump) / 2) < transform.position.x && transform.position.x < ((myHitTransform.localScale.x) / 2))
+            {
+                //Debug.Log("In green zone");
+            }
+            else
+            {
+                //Debug.Log("In red zone");
+            }
+            //Debug.Log((myHitTransform.localScale.x - (myHitTransform.localScale.x - 2)) + transform.position)
+            //Debug.Log(surfaceHit.bounds);
+            //Debug.Log(positionWorld);
         }
 
     }

@@ -52,6 +52,7 @@ public class Camera_Controlle : Player_Settings
         if(player_MotorMouvement == Player_MotorMouvement.Slide)
         {
             transform.position = new Vector3(playerBody.position.x, playerBody.position.y, playerBody.position.z);
+
         }
         else
         {

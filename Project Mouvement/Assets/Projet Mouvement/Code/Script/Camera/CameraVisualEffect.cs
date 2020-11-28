@@ -13,7 +13,7 @@ public class CameraVisualEffect : Player_Settings
     private float tempsEcouleSpeed;
     public float timeMaxSpeed = 1f;
 
-    private bool resetSpeed = false;
+    public bool resetSpeed = false;
 
     [Header("FieldsOfView")]
     public AnimationCurve ani_CurveAcceleration;
@@ -35,6 +35,7 @@ public class CameraVisualEffect : Player_Settings
         if(resetSpeed)
         {
             tempsEcouleSpeed = 0;
+            resetSpeed = false;
         }
         if(tempsEcouleSpeed < timeMaxSpeed)
         {

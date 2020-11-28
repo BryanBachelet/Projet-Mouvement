@@ -137,7 +137,7 @@ public class Player_BasicMouvement : Player_Settings
 
     public void EffectVisuel()
     {
-        //myCVEscript.FieldOfViewValue(rigidbodyPlayer.velocity.magnitude);
+        myCVEscript.FieldOfViewValue(rigidbodyPlayer.velocity.magnitude);
     }
 
     public void DebugUI()
@@ -147,6 +147,10 @@ public class Player_BasicMouvement : Player_Settings
         {
             uiText.text = "" + rigidbodyPlayer.velocity.magnitude.ToString("F0");
             tempsEcouleResetTemps = 0;
+        }
+        if(rigidbodyPlayer.velocity.magnitude < 1)
+        {
+            myCVEscript.resetSpeed = true;
         }
     }
 
