@@ -18,6 +18,7 @@ public class Player_Jump : Player_Settings
     public LayerMask surfaceObstacle;
     Collider surfaceHit;
     public Vector3 offsetCollider;
+    public float offsetJump = 3;
 
 
     private Rigidbody player_Rigid;
@@ -89,10 +90,10 @@ public class Player_Jump : Player_Settings
         }
         else
         {
-            if (JulArea())
+            if (JumpBoostBorder())
             {
                 player_Rigid.AddForce(Vector3.up * (jumpValue + 15), ForceMode.Impulse);
-                Debug.Log("JUUUUUUUUUUUMMMMMMMMMMMMPPPPPPPPPPPPPPOOOOOOOOOOOOOUUUUUUUUUUUUUUUUUUUU ta mer");
+               
             }
             else
             {
@@ -126,11 +127,11 @@ public class Player_Jump : Player_Settings
 
     }
 
-    public bool JulArea()
+    public bool JumpBoostBorder()
     {
         if(surfaceHit != null)
         {
-            bool isOnJul;
+            
             Transform myHitTransform = surfaceHit.transform;
             if (surfaceHit.transform.position.z + ((myHitTransform.localScale.z - offsetJump) / 2) < transform.position.z && transform.position.z < ((myHitTransform.localScale.z) / 2))
             {
