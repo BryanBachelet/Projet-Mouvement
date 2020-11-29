@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using FMODUnity;
 public class Player_Jump : Player_Settings
 {
     [Header("Jump Caracteristique")]
@@ -25,12 +25,18 @@ public class Player_Jump : Player_Settings
     private Player_CheckState checkState;
     private bool isKeyPress;
 
+    private bool checkGrounded = false;
+
+    [EventRef]
+    public string groundedSound;
+
 
     // Start is called before the first frame update
     void Start()
     {
         player_Rigid = GetComponent<Rigidbody>();
         checkState = GetComponent<Player_CheckState>();
+        
     }
 
     // Update is called once per frame
@@ -45,6 +51,7 @@ public class Player_Jump : Player_Settings
 
         if (jump_CountGravity > jumpTimerGravity || player_MotorMouvement == Player_MotorMouvement.Slide)
         {
+
             player_Rigid.AddForce(-Vector3.up * gravityForce, ForceMode.Acceleration);
 
         }
@@ -76,6 +83,20 @@ public class Player_Jump : Player_Settings
                 isKeyPress = true;
             }
         }
+        if(player_Surface == Player_Surface.Grounded)
+        {
+            if(!checkGrounded)
+            {
+
+                checkGrounded = true;
+                RuntimeManager.PlayOneShot(groundedSound, transform.position);
+            }
+        }
+        else
+        {
+            checkGrounded = false;
+        }
+
     }
 
 

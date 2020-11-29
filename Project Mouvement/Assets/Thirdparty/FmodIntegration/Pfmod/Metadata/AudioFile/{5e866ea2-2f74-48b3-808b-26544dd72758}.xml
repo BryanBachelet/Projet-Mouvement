@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.01.00">
+	<object class="AudioFile" id="{5e866ea2-2f74-48b3-808b-26544dd72758}">
+		<property name="assetPath">
+			<value>NeonConstant.wav</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>44.0999985</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>17.473015873015871</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{e212f12f-27de-4e28-83a5-b896139623ad}</destination>
+		</relationship>
+	</object>
+</objects>

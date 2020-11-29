@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.01.00">
+	<object class="AudioFile" id="{335f5a98-322c-4a9a-8d1b-995b1fa9e861}">
+		<property name="assetPath">
+			<value>FaceTheWind.wav</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>44.0999985</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>5.9165079365079363</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{e212f12f-27de-4e28-83a5-b896139623ad}</destination>
+		</relationship>
+	</object>
+</objects>
