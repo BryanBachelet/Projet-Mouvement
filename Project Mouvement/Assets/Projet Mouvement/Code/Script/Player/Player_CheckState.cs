@@ -4,14 +4,8 @@ using UnityEngine;
 
 public class Player_CheckState : Player_Settings
 {
+    public float wallSide;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
     void Update()
     {
         //Check if the player is on the ground
@@ -20,19 +14,36 @@ public class Player_CheckState : Player_Settings
         {
             player_Surface = Player_Surface.Grounded;
             player_MouvementUp = Player_MouvementUp.Null;
-           
+            wallSide = 0;
             return;
         }
-        else if(Physics.Raycast(transform.position,transform.right,1f)|| Physics.Raycast(transform.position, transform.right, -1f))
+         if (Physics.Raycast(transform.position, transform.right, 1.25f) || Physics.Raycast(transform.position, -transform.right, 1.25f))
         {
-            player_Surface = Player_Surface.Wall;
+
+            GetSide();
             return;
         }
         else
         {
             player_Surface = Player_Surface.Air;
+            wallSide = 0;
         }
+        Debug.DrawRay(transform.position, -transform.right * 1.25f,Color.green);
     }
 
-   
+    public void GetSide()
+    {
+        if (Physics.Raycast(transform.position, transform.right, 1.25f)) 
+        {
+            wallSide = 1;
+           
+        }
+        if(Physics.Raycast(transform.position, -transform.right, 1.25f))
+        {
+            wallSide = -1;
+
+        }
+        player_Surface = Player_Surface.Wall;
+    }
+
 }

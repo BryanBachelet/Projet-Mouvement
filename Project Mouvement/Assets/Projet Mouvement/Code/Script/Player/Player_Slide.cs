@@ -22,7 +22,7 @@ public class Player_Slide : Player_Settings
             //myCollider.center = new Vector3(0,-0.5f,0);
             //Camera.main.transform.position = new Vector3(0, 0, 0);
             player_MotorMouvement = Player_MotorMouvement.Slide;
-            Camera.main.transform.GetChild(0).gameObject.SetActive(true);
+           // Camera.main.transform.GetChild(0).gameObject.SetActive(true);
 
         }
         if (Input.GetKey(KeyCode.LeftControl))
@@ -35,7 +35,7 @@ public class Player_Slide : Player_Settings
             //myCollider.center = new Vector3(0, 0f, 0);
             //Camera.main.transform.position = new Vector3(0, 0.5f, 0);
             player_MotorMouvement = Player_MotorMouvement.Run;
-            Camera.main.transform.GetChild(0).gameObject.SetActive(false);
+           // Camera.main.transform.GetChild(0).gameObject.SetActive(false);
         }   //
     }
 }

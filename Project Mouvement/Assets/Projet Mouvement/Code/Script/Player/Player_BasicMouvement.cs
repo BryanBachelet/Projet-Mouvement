@@ -56,29 +56,34 @@ public class Player_BasicMouvement : Player_Settings
         Vector3 dirMouvement = new Vector3(side, 0, front).normalized;
         RaycastHit hit = new RaycastHit();
         Physics.Raycast(transform.position, -Vector3.up, out hit, 10f);
-        Tool_SurfaceTopographie.GetTopo( hit.normal, transform);
+        Tool_SurfaceTopographie.GetTopo(hit.normal, transform);
         //------------------ DEBUG--------------------
         Debug.DrawRay(transform.position - Vector3.up, (transform.forward * front + transform.right * side) * 10f, Color.blue);
-        Debug.Log(DetectionCollision(front, side));
+      // Debug.Log(DetectionCollision(front, side));
         //------------------ DEBUG--------------------
-        if (!DetectionCollision(front, side))
+        if (player_MotorMouvement != Player_MotorMouvement.WallRun)
         {
-            rigidbodyPlayer.AddForce(transform.forward * dirMouvement.z * accelerationValue, forceMode);
-            rigidbodyPlayer.AddForce(transform.right * dirMouvement.x * accelerationValue, forceMode);
+            if (!DetectionCollision(front, side))
 
-            //Clamp velocity on Z & X axes
-            Vector3 mouvementPlayer = new Vector3(rigidbodyPlayer.velocity.x, 0, rigidbodyPlayer.velocity.z);
-            mouvementPlayer = Vector3.ClampMagnitude(mouvementPlayer, maxValue);
-            mouvementPlayer.y = rigidbodyPlayer.velocity.y;
-            rigidbodyPlayer.velocity = mouvementPlayer;
+            {
+                rigidbodyPlayer.AddForce(transform.forward * dirMouvement.z * accelerationValue, forceMode);
+                rigidbodyPlayer.AddForce(transform.right * dirMouvement.x * accelerationValue, forceMode);
+
+                //Clamp velocity on Z & X axes
+                Vector3 mouvementPlayer = new Vector3(rigidbodyPlayer.velocity.x, 0, rigidbodyPlayer.velocity.z);
+                mouvementPlayer = Vector3.ClampMagnitude(mouvementPlayer, maxValue);
+                mouvementPlayer.y = rigidbodyPlayer.velocity.y;
+                rigidbodyPlayer.velocity = mouvementPlayer;
+
+                SetUpState(front, side);
+            }
+
+            if (side == 0 && front == 0 && rigidbodyPlayer.velocity.magnitude > 1)
+            {
+                rigidbodyPlayer.velocity = new Vector3(rigidbodyPlayer.velocity.x * 0.90f, rigidbodyPlayer.velocity.y, rigidbodyPlayer.velocity.z * 0.90f);
+            }
         }
 
-        if (side == 0 && front == 0 && rigidbodyPlayer.velocity.magnitude > 1)
-        {
-            rigidbodyPlayer.velocity = new Vector3(rigidbodyPlayer.velocity.x * 0.90f, rigidbodyPlayer.velocity.y, rigidbodyPlayer.velocity.z * 0.90f);
-        }
-
-        SetUpState(front, side);
 
         front = 0;
         side = 0;
@@ -87,18 +92,22 @@ public class Player_BasicMouvement : Player_Settings
 
     private void Update()
     {
-        // Input of the player
-        if (!IsGamepad)
+        if (player_MotorMouvement != Player_MotorMouvement.WallRun)
         {
-            front = GetAxis(Forward, Back, true);
-            side = GetAxis(Right, Left, true);
+            // Input of the player
+            if (!IsGamepad)
+            {
+                front = GetAxis(Forward, Back, true);
+                side = GetAxis(Right, Left, true);
 
+            }
+            else
+            {
+                front = Input.GetAxis("Vertical");
+                side = Input.GetAxis("Horizontal");
+            }
         }
-        else
-        {
-            front = Input.GetAxis("Vertical");
-            side = Input.GetAxis("Horizontal");
-        }
+
         if (Input.GetKeyDown(KeyCode.T) || Input.GetKeyDown(KeyCode.Joystick1Button9))
         {
             IsGamepad = !IsGamepad;
@@ -113,9 +122,9 @@ public class Player_BasicMouvement : Player_Settings
     public bool DetectionCollision(float forward, float side)
     {
         bool IsDectect = false;
-        IsDectect = Physics.Raycast(transform.position - Vector3.up, (transform.forward * forward + transform.right * side), 2f);
+        IsDectect = Physics.Raycast(transform.position - Vector3.up, (transform.forward * forward + transform.right * side), 1.1f);
         if (IsDectect) return IsDectect;
-        IsDectect = Physics.Raycast(transform.position + Vector3.up, transform.forward * forward + transform.right * side, 2f);
+        IsDectect = Physics.Raycast(transform.position + Vector3.up, transform.forward * forward + transform.right * side, 1.1f);
 
         return IsDectect;
     }
@@ -137,7 +146,7 @@ public class Player_BasicMouvement : Player_Settings
 
     public void EffectVisuel()
     {
-        myCVEscript.FieldOfViewValue(rigidbodyPlayer.velocity.magnitude);
+        //  myCVEscript.FieldOfViewValue(rigidbodyPlayer.velocity.magnitude);
     }
 
     public void DebugUI()
@@ -148,9 +157,9 @@ public class Player_BasicMouvement : Player_Settings
             uiText.text = "" + rigidbodyPlayer.velocity.magnitude.ToString("F0");
             tempsEcouleResetTemps = 0;
         }
-        if(rigidbodyPlayer.velocity.magnitude < 1)
+        if (rigidbodyPlayer.velocity.magnitude < 1)
         {
-            myCVEscript.resetSpeed = true;
+            // myCVEscript.resetSpeed = true;
         }
     }
 
