@@ -103,22 +103,27 @@ public class Player_Jump : Player_Settings
     private void Jump()
     {
         player_MouvementUp = Player_MouvementUp.Jump;
+
         jumpCount++;
         if (jump_CountGravity >= jumpTimerGravity)
         {
 
             player_Rigid.AddForce(Vector3.up * (jumpValue * jumpCount), ForceMode.Impulse);
+
         }
         else
         {
             if (JumpBoostBorder())
             {
                 player_Rigid.AddForce(Vector3.up * (jumpValue + 15), ForceMode.Impulse);
-               
+                Player_Slide.SlideInstance.setParameterByName("JumpOnSlide", 0.77f);
+
             }
             else
             {
+                Player_Slide.SlideInstance.setParameterByName("JumpOnSlide", 0.51f);
                 player_Rigid.AddForce(Vector3.up * jumpValue, ForceMode.Impulse);
+
             }
 
         }

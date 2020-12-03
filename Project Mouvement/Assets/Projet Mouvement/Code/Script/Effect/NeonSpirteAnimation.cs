@@ -86,7 +86,7 @@ public class NeonSpirteAnimation : MonoBehaviour
                     myRenderer.material.SetColor("_MainColor", Color.black);
                     transform.GetChild(0).gameObject.SetActive(true);
                     neonSoundInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
-                    Debug.Log(TempsEcouleStop + "Inférieure");
+                    //Debug.Log(TempsEcouleStop + "Inférieure");
                 }
                 if (TempsEcouleStop > stopTime  + addToStop + 2)
                 {
@@ -98,14 +98,14 @@ public class NeonSpirteAnimation : MonoBehaviour
                         neonSoundInstance.start();
                         launchSound = true;
                     }
-                    Debug.Log(TempsEcouleStop + "Supérieure" + myRenderer.material.GetColor("_MainColor"));
-                    Debug.Log(TempsEcouleStop + "Supérieure" + myRenderer.material.GetColor("_RimColor"));
+                    //Debug.Log(TempsEcouleStop + "Supérieure" + myRenderer.material.GetColor("_MainColor"));
+                    //Debug.Log(TempsEcouleStop + "Supérieure" + myRenderer.material.GetColor("_RimColor"));
 
                 }
                 if(TempsEcouleStop > (stopTime  + addToStop + 2 )* 1.3f)
                 {
                     TempsEcouleStop = 0;
-                    Debug.Log(TempsEcouleStop + "Reset");
+                    //Debug.Log(TempsEcouleStop + "Reset");
                     transform.GetChild(0).gameObject.SetActive(false);
                     isStop = false;
                     launchSound = false;

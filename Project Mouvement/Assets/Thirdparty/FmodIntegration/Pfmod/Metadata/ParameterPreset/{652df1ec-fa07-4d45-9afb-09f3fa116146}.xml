@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.01.00">
+	<object class="ParameterPreset" id="{652df1ec-fa07-4d45-9afb-09f3fa116146}">
+		<property name="name">
+			<value>JumpOnSlide</value>
+		</property>
+		<relationship name="folder">
+			<destination>{3043ed12-a83e-4f88-926d-829cdb2eae41}</destination>
+		</relationship>
+		<relationship name="parameter">
+			<destination>{4f110eb9-ee7b-4133-9026-9879189e3259}</destination>
+		</relationship>
+	</object>
+	<object class="GameParameter" id="{4f110eb9-ee7b-4133-9026-9879189e3259}">
+		<property name="initialValue">
+			<value>0</value>
+		</property>
+	</object>
+</objects>

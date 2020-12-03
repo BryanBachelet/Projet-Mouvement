@@ -8,10 +8,16 @@ public class Player_Slide : Player_Settings
     private CapsuleCollider myCollider;
 
     private bool checkAerial = false;
+    private bool checkSlide = false;
 
     [EventRef]
     public string AerialSound;
     FMOD.Studio.EventInstance AerialInstance;
+
+    [EventRef]
+    public string SlideSound;
+    public static FMOD.Studio.EventInstance SlideInstance;
+    float volume;
     // Start is called before the first frame update
     void Start()
     {
@@ -21,6 +27,12 @@ public class Player_Slide : Player_Settings
         {
             AerialInstance = RuntimeManager.CreateInstance(AerialSound);
             RuntimeManager.AttachInstanceToGameObject(AerialInstance, transform, GetComponent<Rigidbody>());
+
+        }
+        if (SlideSound != null)
+        {
+            SlideInstance = RuntimeManager.CreateInstance(SlideSound);
+            RuntimeManager.AttachInstanceToGameObject(SlideInstance, transform, gameObject.GetComponent<Rigidbody>());
 
         }
     }
@@ -44,6 +56,42 @@ public class Player_Slide : Player_Settings
             {
                 AerialInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
                 checkAerial = false;
+            }
+
+        }
+        if (player_Surface == Player_Surface.Grounded && player_MotorMouvement == Player_MotorMouvement.Slide)
+        {
+            if (!checkSlide)
+            {
+
+                checkSlide = true;
+                SlideInstance.setParameterByName("JumpOnSlide", 0.0f);
+                SlideInstance.setVolume(1);
+                Debug.Log((double)SlideInstance.getVolume(out volume));
+                SlideInstance.start();
+            }
+
+        }
+        else
+        {
+            if (checkSlide)
+            {
+                //SlideInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+                volume -=  1.5f *Time.deltaTime;
+                Debug.Log("Volume is : " + volume);
+                if (volume > 0)
+                {
+                    SlideInstance.setVolume(volume);
+                }
+                else
+                {
+                    SlideInstance.setVolume(0f);
+                    checkSlide = false;
+                }
+
+
+
+
             }
 
         }
