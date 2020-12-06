@@ -52,61 +52,73 @@ public class Player_BasicMouvement : Player_Settings
 
     void FixedUpdate()
     {
-        //Player acceleration
-        Vector3 dirMouvement = new Vector3(side, 0, front).normalized;
-        RaycastHit hit = new RaycastHit();
-        Physics.Raycast(transform.position, -Vector3.up, out hit, 10f);
-        Tool_SurfaceTopographie.GetTopo( hit.normal, transform);
-        //------------------ DEBUG--------------------
-        Debug.DrawRay(transform.position - Vector3.up, (transform.forward * front + transform.right * side) * 10f, Color.blue);
-        Debug.Log(DetectionCollision(front, side));
-        //------------------ DEBUG--------------------
-        if (!DetectionCollision(front, side))
+        if(!MacroFunction.isPause)
         {
-            rigidbodyPlayer.AddForce(transform.forward * dirMouvement.z * accelerationValue, forceMode);
-            rigidbodyPlayer.AddForce(transform.right * dirMouvement.x * accelerationValue, forceMode);
+            //Player acceleration
+            Vector3 dirMouvement = new Vector3(side, 0, front).normalized;
+            RaycastHit hit = new RaycastHit();
+            Physics.Raycast(transform.position, -Vector3.up, out hit, 10f);
+            Tool_SurfaceTopographie.GetTopo(hit.normal, transform);
+            //------------------ DEBUG--------------------
+            Debug.DrawRay(transform.position - Vector3.up, (transform.forward * front + transform.right * side) * 10f, Color.blue);
+            Debug.Log(DetectionCollision(front, side));
+            //------------------ DEBUG--------------------
+            if (!DetectionCollision(front, side))
+            {
+                rigidbodyPlayer.AddForce(transform.forward * dirMouvement.z * accelerationValue, forceMode);
+                rigidbodyPlayer.AddForce(transform.right * dirMouvement.x * accelerationValue, forceMode);
 
-            //Clamp velocity on Z & X axes
-            Vector3 mouvementPlayer = new Vector3(rigidbodyPlayer.velocity.x, 0, rigidbodyPlayer.velocity.z);
-            mouvementPlayer = Vector3.ClampMagnitude(mouvementPlayer, maxValue);
-            mouvementPlayer.y = rigidbodyPlayer.velocity.y;
-            rigidbodyPlayer.velocity = mouvementPlayer;
+                //Clamp velocity on Z & X axes
+                Vector3 mouvementPlayer = new Vector3(rigidbodyPlayer.velocity.x, 0, rigidbodyPlayer.velocity.z);
+                mouvementPlayer = Vector3.ClampMagnitude(mouvementPlayer, maxValue);
+                mouvementPlayer.y = rigidbodyPlayer.velocity.y;
+                rigidbodyPlayer.velocity = mouvementPlayer;
+            }
+
+            if (side == 0 && front == 0 && rigidbodyPlayer.velocity.magnitude > 1)
+            {
+                rigidbodyPlayer.velocity = new Vector3(rigidbodyPlayer.velocity.x * 0.90f, rigidbodyPlayer.velocity.y, rigidbodyPlayer.velocity.z * 0.90f);
+            }
+
+            SetUpState(front, side);
+
+            front = 0;
+            side = 0;
+        }
+        else
+        {
+            
         }
 
-        if (side == 0 && front == 0 && rigidbodyPlayer.velocity.magnitude > 1)
-        {
-            rigidbodyPlayer.velocity = new Vector3(rigidbodyPlayer.velocity.x * 0.90f, rigidbodyPlayer.velocity.y, rigidbodyPlayer.velocity.z * 0.90f);
-        }
-
-        SetUpState(front, side);
-
-        front = 0;
-        side = 0;
     }
 
 
     private void Update()
     {
-        // Input of the player
-        if (!IsGamepad)
+        if(!MacroFunction.isPause)
         {
-            front = GetAxis(Forward, Back, true);
-            side = GetAxis(Right, Left, true);
+            // Input of the player
+            if (!IsGamepad)
+            {
+                front = GetAxis(Forward, Back, true);
+                side = GetAxis(Right, Left, true);
 
-        }
-        else
-        {
-            front = Input.GetAxis("Vertical");
-            side = Input.GetAxis("Horizontal");
-        }
-        if (Input.GetKeyDown(KeyCode.T) || Input.GetKeyDown(KeyCode.Joystick1Button9))
-        {
-            IsGamepad = !IsGamepad;
-        }
+            }
+            else
+            {
+                front = Input.GetAxis("Vertical");
+                side = Input.GetAxis("Horizontal");
+            }
+            if (Input.GetKeyDown(KeyCode.T) || Input.GetKeyDown(KeyCode.Joystick1Button9))
+            {
+                IsGamepad = !IsGamepad;
+            }
 
 
-        EffectVisuel();
-        DebugUI();
+            EffectVisuel();
+            DebugUI();
+        }
+
     }
 
     // Check if Obstacle in the front direction
