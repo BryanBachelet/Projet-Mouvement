@@ -16,7 +16,7 @@ TagManager:
   - PostProcessing
   - Player
   - SurfaceObstacle
-  - 
+  - TestUI
   - 
   - 
   - 
@@ -40,4 +40,7 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Edge
+    uniqueID: 976049123
     locked: 0
