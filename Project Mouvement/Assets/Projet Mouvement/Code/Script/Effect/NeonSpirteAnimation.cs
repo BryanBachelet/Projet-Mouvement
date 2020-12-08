@@ -14,6 +14,7 @@ public class NeonSpirteAnimation : MonoBehaviour
     private int compteurAnimation;
 
     public bool isStopping = false;
+    public bool isChangingAnim = true;
     public int rndMaxStopAdd;
     int addToStop;
     bool launchSound = false;
@@ -60,20 +61,24 @@ public class NeonSpirteAnimation : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        tempsEcouleAnimation += Time.deltaTime;
-        if (tempsEcouleAnimation >= tempsAnimation / sheetLenght)
+        if(isChangingAnim)
         {
-            if (compteurAnimation + 1 < sheetLenght)
+            tempsEcouleAnimation += Time.deltaTime;
+            if (tempsEcouleAnimation >= tempsAnimation / sheetLenght)
             {
-                compteurAnimation += 1;
+                if (compteurAnimation + 1 < sheetLenght)
+                {
+                    compteurAnimation += 1;
+                }
+                else
+                {
+                    compteurAnimation = 0;
+                }
+                tempsEcouleAnimation = 0;
+                myCurrentMaterial.mainTexture = textureNeonSheet[compteurAnimation];
             }
-            else
-            {
-                compteurAnimation = 0;
-            }
-            tempsEcouleAnimation = 0;
-            myCurrentMaterial.mainTexture = textureNeonSheet[compteurAnimation];
         }
+
         if (isStopping)
         {
             TempsEcouleStop += Time.deltaTime;
