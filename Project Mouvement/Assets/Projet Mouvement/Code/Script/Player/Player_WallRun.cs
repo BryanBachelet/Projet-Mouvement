@@ -8,60 +8,121 @@ public class Player_WallRun : Player_Settings
     public KeyCode Forward = KeyCode.Z;
     public KeyCode Back = KeyCode.S;
 
-    public float accelerationSpeed = 50;
-    public float maxValue = 10;
 
+    //---Variable---
+
+    private float enterSpeed;
+
+    //---- Components ----
     private Player_Jump playerJump;
+    private Rigidbody playerRigid;
     private Player_CheckState checkState;
-    private Rigidbody player_Rigid;
-    // Start is called before the first frame update
-    void Start()
+
+
+    private void Start()
     {
-        player_Rigid = GetComponent<Rigidbody>();
+        GetPlayerJump();
+        GetPlayerRigidBody();
+        GetPlayerCheckWall();
+    }
+
+
+    private void Update()
+    {
+        if(checkState.wallSide == 0)
+        {
+            DeactiveWallRun();
+        }
+    }
+
+
+    public void DeactiveWallRun()
+    {
+        SetGravity(true);
+        player_MotorMouvement = Player_MotorMouvement.Null;
+    }
+
+    public void ActivateWallRun()
+    {
+        Debug.Log("Active Wall Run");
+        player_MotorMouvement = Player_MotorMouvement.WallRun;
+        SetGravity(false);
+        GetCurrentHorizontalSpeed();
+        SetNewVelocitySpeed();
+        playerJump.RestJumpCount();
+    }
+
+
+    private void GetCurrentHorizontalSpeed()
+    {
+        enterSpeed = new Vector3(playerRigid.velocity.x, 0, playerRigid.velocity.z).magnitude;
+        Debug.Log("Enter horizontal speed = " + enterSpeed.ToString("F0"));
+    }
+
+
+
+    private void SetNewVelocitySpeed() 
+    {
+        RaycastHit hit;
+        Physics.Raycast(transform.position, transform.right * checkState.wallSide, out hit, 10f);
+        Vector3 wallDir = Quaternion.Euler(0, 90 * checkState.wallSide, 0)* hit.normal;
+        playerRigid.angularVelocity = Vector3.zero;
+        playerRigid.velocity = Vector3.zero;
+        playerRigid.velocity = wallDir.normalized * enterSpeed;
+        Debug.Log("Dir parallèle ="+ wallDir + " Normal =" + hit.normal);
+        Debug.Log("Velocity =" + playerRigid.velocity);
+    }
+
+    
+
+    private void SetGravity(bool isGravity)
+    {
+        playerRigid.useGravity = isGravity;
+        Debug.Log("Gravity = " + playerRigid.useGravity);
+    }
+
+    private void GetPlayerCheckWall()
+    {
         checkState = GetComponent<Player_CheckState>();
-        playerJump = GetComponent<Player_Jump>();
+        if(checkState != null)
+        {
+            Debug.Log("Check State");
+        }
+        else
+        {
+            Debug.LogWarning("You need to put Player_CheckState on the object");
+        }
     }
 
-    // Update is called once per frame
-    void Update()
+    private void GetPlayerRigidBody()
     {
-
-
-        if (player_Surface == Player_Surface.Wall)
+        playerRigid = GetComponent<Rigidbody>();
+        if (playerRigid != null)
         {
-            if (player_MouvementUp == Player_MouvementUp.Fall)
-            {         
-                ActiveWallRun();
-            }
+            Debug.Log("Rigidbody Find");
         }
-
-        if (player_MotorMouvement == Player_MotorMouvement.WallRun)
+        else
         {
-            float front = GetAxis(Forward, Back, true);
-            Debug.Log("Check Wall = "+ checkState.wallSide);
-            // Search Normal && Rervese
-            Vector3 dirMouvemement = GetParalle(checkState.wallSide);
-            float anglePlayer = Vector3.Angle(Vector3.forward, dirMouvemement.normalized);
-            anglePlayer = SetNegativeAngle(anglePlayer);
-            transform.rotation = Quaternion.Euler(transform.rotation.x, anglePlayer, transform.rotation.z);
-            
-            player_Rigid.AddForce(transform.forward * front * accelerationSpeed, ForceMode.Acceleration);
-            Vector3 mouvementPlayer = new Vector3(player_Rigid.velocity.x, 0, player_Rigid.velocity.z);
-            mouvementPlayer = Vector3.ClampMagnitude(mouvementPlayer, maxValue);
-            player_Rigid.velocity = new Vector3(mouvementPlayer.x, 0, mouvementPlayer.z);
-            if(checkState.wallSide == 0)
-            {
-                DeactiveWallRun();
-            }
-            if (Input.GetKeyDown(KeyCode.JoystickButton0) || Input.GetKeyDown(KeyCode.Space))
-            {
-                DeactiveWallRun();
-
-                playerJump.Jump(Vector3.up + (transform.right * 2 * checkState.wallSide));
-            }
+            Debug.LogWarning("You need to put Player_Jump on the object");
         }
-
     }
+
+    private void GetPlayerJump()
+    {
+        playerJump = GetComponent<Player_Jump>();
+        if (playerJump != null)
+        {
+            Debug.Log("Player_Jump Find");
+        }
+        else
+        {
+            Debug.LogWarning("You need to put Player_Jump on the object");
+        }
+    }
+
+
+
+    //----------- TOOLS ----------
 
     private float SetNegativeAngle(float angle)
     {
@@ -73,32 +134,6 @@ public class Player_WallRun : Player_Settings
         return angle;
     }
 
-    public void ActiveWallRun()
-    {
-        player_MotorMouvement = Player_MotorMouvement.WallRun;
-        player_MouvementUp = Player_MouvementUp.Null;
-        player_Rigid.velocity = new Vector3(player_Rigid.velocity.x, 0, player_Rigid.velocity.z);
-        player_Rigid.useGravity = false;
-    }
-
-    public void DeactiveWallRun()
-    {
-        player_MotorMouvement = Player_MotorMouvement.Null;
-        player_MouvementUp = Player_MouvementUp.Jump;
-        player_Rigid.useGravity = true;
-    }
-
-    public Vector3 GetParalle(float wallside)
-    {
-        wallside = wallside == 0 ? 1 : wallside;
-        RaycastHit hit = new RaycastHit();
-        Physics.Raycast(transform.position, transform.right * wallside, out hit, 2f);
-        Vector3 paralleleVector = Quaternion.Euler(0, 90 * wallside, 0) * hit.normal; 
-          
-        return paralleleVector;
-    }
-
-    // Doublons
     public float GetAxis(KeyCode Positif, KeyCode Negatif, bool Press)
     {
         float axisValue = 0;

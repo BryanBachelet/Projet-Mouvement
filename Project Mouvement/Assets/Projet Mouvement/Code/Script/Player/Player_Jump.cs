@@ -23,55 +23,48 @@ public class Player_Jump : Player_Settings
     public float offsetJump = 3;
 
 
-    private Rigidbody player_Rigid;
-    private Player_CheckState checkState;
     private bool isKeyPress;
 
+
+    private Rigidbody player_Rigid;
+    private Player_CheckState checkState;
+    private Player_WallRun player_WallRun;
 
     // Start is called before the first frame update
     void Start()
     {
         player_Rigid = GetComponent<Rigidbody>();
         checkState = GetComponent<Player_CheckState>();
+        player_WallRun = GetComponent<Player_WallRun>();
     }
 
     // Update is called once per frame
     void FixedUpdate()
     {
-        CheckBorderSurface();
-        //Event Input
-        if (isKeyPress)
+        if (player_MotorMouvement != Player_MotorMouvement.WallRun)
         {
-            Jump();
-            isKeyPress = false;
-        }
-        // Gravity Fall
-        if (player_MouvementUp == Player_MouvementUp.Jump || player_MouvementUp == Player_MouvementUp.Fall)
-        {
-            if (jump_CountGravity > jumpTimerGravity || player_MotorMouvement == Player_MotorMouvement.Slide)
+            CheckBorderSurface();
+            //Event Input
+            if (isKeyPress)
             {
-                player_Rigid.AddForce(-Vector3.up * gravityForce, ForceMode.Acceleration);
+                Jump();
+                isKeyPress = false;
             }
-            else
+            // Gravity Fall
+            if (player_MouvementUp == Player_MouvementUp.Jump || player_MouvementUp == Player_MouvementUp.Fall)
             {
-                //CountDown Gravity
-                jump_CountGravity += Time.fixedDeltaTime;
+                if (jump_CountGravity > jumpTimerGravity || player_MotorMouvement == Player_MotorMouvement.Slide)
+                {
+                    player_Rigid.AddForce(-Vector3.up * gravityForce, ForceMode.Acceleration);
+                }
+                else
+                {
+                    //CountDown Gravity
+                    jump_CountGravity += Time.fixedDeltaTime;
+                }
             }
         }
 
-        // Change State Fall
-        if (player_Rigid.velocity.y <= -1f)
-        {
-            player_MouvementUp = Player_MouvementUp.Fall;
-        }
-
-        //Reset Mouvement Up State & Jump
-        if (player_MouvementUp == Player_MouvementUp.Null)
-        {
-            jumpCount = 0;
-            jump_CountGravity = 0;
-            player_MouvementUp = Player_MouvementUp.Null;
-        }
 
 
     }
@@ -87,6 +80,27 @@ public class Player_Jump : Player_Settings
                     isKeyPress = true;
                 }
             }
+        }
+
+        if (player_MouvementUp == Player_MouvementUp.Fall && player_Surface == Player_Surface.Wall && player_MotorMouvement != Player_MotorMouvement.WallRun)
+        {
+            player_WallRun.ActivateWallRun();
+            return;
+        }
+
+        // Change State Fall
+        if (player_Rigid.velocity.y <= -3f)
+        {
+            player_MouvementUp = Player_MouvementUp.Fall;
+          
+        }
+
+        //Reset Mouvement Up State & Jump
+        if (player_MouvementUp == Player_MouvementUp.Null)
+        {
+            jumpCount = 0;
+            jump_CountGravity = 0;
+            player_MouvementUp = Player_MouvementUp.Null;
         }
     }
 
@@ -114,7 +128,7 @@ public class Player_Jump : Player_Settings
 
     }
 
-    public void Jump(Vector3 dir)
+    public void Jump(Vector3 dir,float power)
     {
         // Set Player Jump State 
         player_MouvementUp = Player_MouvementUp.Jump;
@@ -124,14 +138,20 @@ public class Player_Jump : Player_Settings
         if (JumpBoostBorder())
         {
             // Add Force to jump & Cancel gravity + Border Bonus
-            player_Rigid.AddForce(dir.normalized * (jumpValue + Mathf.Abs(player_Rigid.velocity.y) + border_Bonus), ForceMode.Impulse);
+            player_Rigid.AddForce(dir.normalized * (power + Mathf.Abs(player_Rigid.velocity.y) + border_Bonus), ForceMode.Impulse);
         }
         else
         {
-            player_Rigid.AddForce(dir.normalized * (jumpValue + Mathf.Abs(player_Rigid.velocity.y)), ForceMode.Impulse);
+            player_Rigid.AddForce(dir.normalized * (power + Mathf.Abs(player_Rigid.velocity.y)), ForceMode.Impulse);
         }
         jump_CountGravity = 0;
 
+    }
+
+    public void RestJumpCount()
+    {
+        jumpCount = 0;
+        Debug.Log("Jump Count Reset !");
     }
 
     public void CheckBorderSurface()
