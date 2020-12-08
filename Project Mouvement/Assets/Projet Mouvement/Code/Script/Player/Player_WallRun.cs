@@ -29,19 +29,45 @@ public class Player_WallRun : Player_Settings
 
     private void Update()
     {
-        if(checkState.wallSide == 0)
+        if (player_MotorMouvement == Player_MotorMouvement.WallRun)
         {
+            //Quit Wall Run Fonction
+            CheckWallSide();
+            JumpQuit();
+
+            // Minimum Speed Wall Run
+            SetNewVelocitySpeed(10f, 10f);
+        }
+    }
+
+    //Quit Wall Run 
+    private void CheckWallSide()
+    {
+        if (checkState.wallSide == 0)
+        {
+            DeactiveWallRun();
+        }
+
+    }
+
+    //Jump Wall Run
+    private void JumpQuit()
+    {
+        if (Input.GetKeyDown(KeyCode.JoystickButton0) || Input.GetKeyDown(KeyCode.Space))
+        {
+            playerJump.Jump(Vector3.up + Vector3.right * 3 + Vector3.forward * 2, 20f);
             DeactiveWallRun();
         }
     }
 
-
+    // Déactivation du Wall Run 
     public void DeactiveWallRun()
     {
         SetGravity(true);
         player_MotorMouvement = Player_MotorMouvement.Null;
     }
 
+    // Activate Wall Run
     public void ActivateWallRun()
     {
         Debug.Log("Active Wall Run");
@@ -60,20 +86,37 @@ public class Player_WallRun : Player_Settings
     }
 
 
-
-    private void SetNewVelocitySpeed() 
+    private Vector3 GetWallDirection()
     {
         RaycastHit hit;
         Physics.Raycast(transform.position, transform.right * checkState.wallSide, out hit, 10f);
-        Vector3 wallDir = Quaternion.Euler(0, 90 * checkState.wallSide, 0)* hit.normal;
+        Vector3 wallDir = Quaternion.Euler(0, 90 * checkState.wallSide, 0) * hit.normal;
+        Debug.Log("Dir parallèle =" + wallDir + " Normal =" + hit.normal);
+        return wallDir;
+    }
+
+    private void SetNewVelocitySpeed()
+    {
+        Vector3 wallDir = GetWallDirection();
         playerRigid.angularVelocity = Vector3.zero;
         playerRigid.velocity = Vector3.zero;
         playerRigid.velocity = wallDir.normalized * enterSpeed;
-        Debug.Log("Dir parallèle ="+ wallDir + " Normal =" + hit.normal);
         Debug.Log("Velocity =" + playerRigid.velocity);
     }
 
-    
+    private void SetNewVelocitySpeed(float speed, float speedMin)
+    {
+        if (speedMin > playerRigid.velocity.magnitude)
+        {
+            Vector3 wallDir = GetWallDirection();
+            playerRigid.angularVelocity = Vector3.zero;
+            playerRigid.velocity = Vector3.zero;
+            playerRigid.velocity = wallDir.normalized * speed;
+            Debug.Log("Velocity =" + playerRigid.velocity);
+        }
+    }
+
+
 
     private void SetGravity(bool isGravity)
     {
@@ -84,7 +127,7 @@ public class Player_WallRun : Player_Settings
     private void GetPlayerCheckWall()
     {
         checkState = GetComponent<Player_CheckState>();
-        if(checkState != null)
+        if (checkState != null)
         {
             Debug.Log("Check State");
         }

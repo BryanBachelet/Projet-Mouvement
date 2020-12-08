@@ -47,15 +47,22 @@ public class Camera_Controlle : Player_Settings
         currentRot.x = SetNegativeAngle(currentRot.x, 275);
         // Clamp Camera Rotation Y
 
+        //---------------------------- A Faire ------------------------
+
         //if (player_MotorMouvement != Player_MotorMouvement.WallRun)
         //{
-            currentRot = new Vector3(Mathf.Clamp(currentRot.x, -90f, 90f), currentRot.y, transform.eulerAngles.z);
+        //    currentRot = new Vector3(Mathf.Clamp(currentRot.x, -90f, 90f), currentRot.y, transform.eulerAngles.z);
         //}
         //else
         //{
 
-        //  //  currentRot = ClampYRotationCameraWallRun(currentRot);
+        //    Quaternion start = Quaternion.Euler(currentRot);
+        //    currentRot = ClampYRotationCameraWallRun(start);
         //}
+
+        //------------------------------------------------------------
+
+        currentRot = new Vector3(Mathf.Clamp(currentRot.x, -90f, 90f), currentRot.y, transform.eulerAngles.z);
 
         transform.rotation = Quaternion.Euler(currentRot);
         Vector3 playerRot = new Vector3(0, currentRot.y, 0);
@@ -84,15 +91,9 @@ public class Camera_Controlle : Player_Settings
     }
 
     // A finir
-    private Vector3 ClampYRotationCameraWallRun(Vector3 rot)
+    private Vector3 ClampYRotationCameraWallRun(Quaternion rot)
     {
-        Debug.Log("Y = " + rot.y);
-        
-        float currentAngle = Vector3.Angle(Vector3.forward, playerBody.forward);
-        rot.y = Mathf.Clamp(rot.y, -90f + (currentAngle),  currentAngle + 90f);
-        rot = new Vector3(Mathf.Clamp(rot.x, -90f, 90f), rot.y, 0);
-        Debug.Log("Negatif  = " + (-90f + (currentAngle * checkState.wallSide)) + " Positif = " + ((checkState.wallSide * currentAngle) + 90f));
-        return rot;
+        return rot.eulerAngles;
     }
 
 
@@ -122,6 +123,31 @@ public class Camera_Controlle : Player_Settings
             }
         }
 
+    }
+
+    private float PositifAngle(float angle)
+    {
+        if (angle < 0)
+        {
+            angle = 360 - angle;
+        }
+
+        return angle;
+    }
+
+    private float ConversionAngle(float angle)
+    {
+
+        if (angle > 180)
+        {
+            angle = angle - 360;
+        }
+        if (angle < -180)
+        {
+            angle = angle + 360;
+        }
+
+        return angle;
     }
 
 

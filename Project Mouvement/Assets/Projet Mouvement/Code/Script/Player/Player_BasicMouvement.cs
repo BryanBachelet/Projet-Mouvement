@@ -71,7 +71,7 @@ public class Player_BasicMouvement : Player_Settings
 
                 //Clamp velocity on Z & X axes
                 Vector3 mouvementPlayer = new Vector3(rigidbodyPlayer.velocity.x, 0, rigidbodyPlayer.velocity.z);
-                if (player_Surface == Player_Surface.Grounded)
+                if (player_Surface != Player_Surface.Wall)
                 {
                     mouvementPlayer = Vector3.ClampMagnitude(mouvementPlayer, maxValue);
                 }
