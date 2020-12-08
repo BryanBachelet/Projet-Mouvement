@@ -10,6 +10,12 @@ public class Player_Slide : Player_Settings
     private bool checkAerial = false;
     private bool checkSlide = false;
 
+    public AnimationCurve accelerationOnSlide;
+    private float tempsEcouleAccelerationSlide = 0;
+    private bool resetAcceleration = false;
+    private GameObject particulEffectAcceleration;
+    private ParticleSystem.MainModule effectParticule;
+
     [EventRef]
     public string AerialSound;
     FMOD.Studio.EventInstance AerialInstance;
@@ -23,6 +29,8 @@ public class Player_Slide : Player_Settings
     {
         player_Rigidbody = GetComponent<Rigidbody>();
         myCollider = GetComponent<CapsuleCollider>();
+        particulEffectAcceleration = Camera.main.transform.GetChild(0).gameObject;
+        effectParticule = particulEffectAcceleration.GetComponent<ParticleSystem>().main;
         if (AerialSound != null)
         {
             AerialInstance = RuntimeManager.CreateInstance(AerialSound);
@@ -42,6 +50,11 @@ public class Player_Slide : Player_Settings
     {
         if(!MacroFunction.isPause)
         {
+            if(resetAcceleration)
+            {
+                resetAcceleration = false;
+                tempsEcouleAccelerationSlide = 0;
+            }
             if (player_Surface == Player_Surface.Air || player_MotorMouvement == Player_MotorMouvement.Slide)
             {
                 if (!checkAerial)
@@ -97,13 +110,14 @@ public class Player_Slide : Player_Settings
                 }
 
             }
-            if (Input.GetKeyDown(KeyCode.LeftControl))
+            if (Input.GetKeyDown(KeyCode.LeftControl) || Input.GetKeyDown(KeyCode.Mouse1))
             {
                 //myCollider.height = 1;
                 //myCollider.center = new Vector3(0,-0.5f,0);
                 //Camera.main.transform.position = new Vector3(0, 0, 0);
                 player_MotorMouvement = Player_MotorMouvement.Slide;
-                Camera.main.transform.GetChild(0).gameObject.SetActive(true);
+                particulEffectAcceleration.SetActive(true);
+                resetAcceleration = true;
 
                 //if (!checkAerial)
                 //{
@@ -114,17 +128,24 @@ public class Player_Slide : Player_Settings
                 //}
 
             }
-            if (Input.GetKey(KeyCode.LeftControl))
+            if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.Mouse1))
             {
-                player_Rigidbody.AddForce(transform.forward * 10, ForceMode.Impulse);
+                if(!resetAcceleration)
+                {
+                    tempsEcouleAccelerationSlide += Time.deltaTime;
+                }
+                player_Rigidbody.AddForce(transform.forward * accelerationOnSlide.Evaluate(tempsEcouleAccelerationSlide), ForceMode.Impulse);
+                effectParticule.startSpeed = 410 * (accelerationOnSlide.Evaluate(tempsEcouleAccelerationSlide) / 10);
+
+
             }
-            if (Input.GetKeyUp(KeyCode.LeftControl))
+            if (Input.GetKeyUp(KeyCode.LeftControl) || Input.GetKeyUp(KeyCode.Mouse1))
             {
                 //myCollider.height = 2;
                 //myCollider.center = new Vector3(0, 0f, 0);
                 //Camera.main.transform.position = new Vector3(0, 0.5f, 0);
                 player_MotorMouvement = Player_MotorMouvement.Run;
-                Camera.main.transform.GetChild(0).gameObject.SetActive(false);
+                particulEffectAcceleration.SetActive(false);
 
                 //if (checkAerial)
                 //{

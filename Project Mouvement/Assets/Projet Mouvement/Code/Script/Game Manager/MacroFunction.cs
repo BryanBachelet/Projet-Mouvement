@@ -16,6 +16,8 @@ public class MacroFunction : MonoBehaviour
     public GameObject pauseUIContainer;
 
     public static bool isPause = false;
+
+    public GameObject SceneLoaderObject;
     // Start is called before the first frame update
     void Start()
     {
@@ -66,7 +68,8 @@ public class MacroFunction : MonoBehaviour
             filledImageLeave.fillAmount = tempsEcouleLeaveGame / timeLeaveGame;
             if (tempsEcouleLeaveGame >= timeLeaveGame)
             {
-                Application.Quit();
+                SceneLoaderObject.GetComponent<SceneLoader>().LoadScene(false);
+                Cursor.lockState = CursorLockMode.None;
             }
         }
         else if (Input.GetKeyUp(KeyCode.Escape))

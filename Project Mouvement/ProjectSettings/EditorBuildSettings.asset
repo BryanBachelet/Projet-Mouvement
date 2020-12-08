@@ -6,6 +6,12 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Projet Mouvement/Scenes/Tit_DebutMenu.unity
+    guid: 42efe495daf3425418cd9f25ecfa5053
+  - enabled: 1
     path: Assets/Projet Mouvement/Scenes/TitouanScene 1.unity
     guid: 63fa5cd0aa4f6bd4db4fbdc8f600f3a9
+  - enabled: 1
+    path: Assets/Projet Mouvement/Scenes/TitouanScene 2.unity
+    guid: afd8e1731c2ef154e81e9c450f9e5927
   m_configObjects: {}
