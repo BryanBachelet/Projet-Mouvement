@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using FMODUnity;
 public class Player_Jump : Player_Settings
 {
     [Header("Jump Caracteristique")]
@@ -24,6 +24,11 @@ public class Player_Jump : Player_Settings
 
 
     private bool isKeyPress;
+
+    private bool checkGrounded = false;
+
+    [EventRef]
+    public string groundedSound;
 
 
     private Rigidbody player_Rigid;
@@ -65,6 +70,13 @@ public class Player_Jump : Player_Settings
             }
         }
 
+<<<<<<< HEAD
+=======
+        if (jump_CountGravity > jumpTimerGravity || player_MotorMouvement == Player_MotorMouvement.Slide)
+        {
+
+            player_Rigid.AddForce(-Vector3.up * gravityForce, ForceMode.Acceleration);
+>>>>>>> origin/TitouanFix
 
 
     }
@@ -123,6 +135,24 @@ public class Player_Jump : Player_Settings
         {
             player_Rigid.AddForce(Vector3.up * (jumpValue + Mathf.Abs(player_Rigid.velocity.y)), ForceMode.Impulse);
         }
+        if (jumpCount < jumpNumber || player_Surface == Player_Surface.Wall)
+        {
+            if (Input.GetKeyDown(KeyCode.JoystickButton0) || Input.GetKeyDown(KeyCode.Space))
+            {
+                isKeyPress = true;
+            }
+        }
+        if(player_Surface == Player_Surface.Grounded)
+        {
+            if(!checkGrounded)
+            {
+
+                checkGrounded = true;
+                RuntimeManager.PlayOneShot(groundedSound, transform.position);
+            }
+        }
+        else
+        {
 
         jump_CountGravity = 0;
 

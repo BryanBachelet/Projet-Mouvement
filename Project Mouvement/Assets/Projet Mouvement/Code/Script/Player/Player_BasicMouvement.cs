@@ -97,7 +97,7 @@ public class Player_BasicMouvement : Player_Settings
 
     private void Update()
     {
-        if (player_MotorMouvement != Player_MotorMouvement.WallRun)
+        if(!MacroFunction.isPause)
         {
             // Input of the player
             if (!IsGamepad)
@@ -111,16 +111,16 @@ public class Player_BasicMouvement : Player_Settings
                 front = Input.GetAxis("Vertical");
                 side = Input.GetAxis("Horizontal");
             }
+            if (Input.GetKeyDown(KeyCode.T) || Input.GetKeyDown(KeyCode.Joystick1Button9))
+            {
+                IsGamepad = !IsGamepad;
+            }
+
+
+            EffectVisuel();
+            DebugUI();
         }
 
-        if (Input.GetKeyDown(KeyCode.T) || Input.GetKeyDown(KeyCode.Joystick1Button9))
-        {
-            IsGamepad = !IsGamepad;
-        }
-
-
-        EffectVisuel();
-        DebugUI();
     }
 
     // Check if Obstacle in the front direction

@@ -27,47 +27,35 @@ public class Camera_Controlle : Player_Settings
 
     void Update()
     {
-        float MouseInputX, MouseInputY = 0;
-        // Get Mouse Input
-        if (!IsGamepad)
+
+        if(!MacroFunction.isPause)
         {
-            MouseInputX = Input.GetAxis("Mouse X");
-            MouseInputY = -Input.GetAxis("Mouse Y");
-        }
-        else
-        {
-            MouseInputX = Input.GetAxis("Horizontal2");
-            MouseInputY = Input.GetAxis("Vertical2");
-        }
+            float MouseInputX, MouseInputY = 0;
+            // Get Mouse Input
+            if (!IsGamepad)
+            {
+                MouseInputX = Input.GetAxis("Mouse X");
+                MouseInputY = -Input.GetAxis("Mouse Y");
+            }
+            else
+            {
+                MouseInputX = Input.GetAxis("Horizontal2");
+                MouseInputY = Input.GetAxis("Vertical2");
+            }
 
 
-        // Camera Movement X & Y
-        Vector3 addRot = new Vector3(MouseInputY * speed_CameraY * Time.deltaTime, MouseInputX * speed_CameraX * Time.deltaTime, 0);
-        Vector3 currentRot = transform.rotation.eulerAngles + addRot;
-        currentRot.x = SetNegativeAngle(currentRot.x, 275);
-        // Clamp Camera Rotation Y
 
-        //---------------------------- A Faire ------------------------
+            // Camera Movement X & Y
+            Vector3 addRot = new Vector3(MouseInputY * speed_CameraY * Time.deltaTime, MouseInputX * speed_CameraX * Time.deltaTime, 0);
+            Vector3 currentRot = transform.rotation.eulerAngles + addRot;
 
-        //if (player_MotorMouvement != Player_MotorMouvement.WallRun)
-        //{
-        //    currentRot = new Vector3(Mathf.Clamp(currentRot.x, -90f, 90f), currentRot.y, transform.eulerAngles.z);
-        //}
-        //else
-        //{
+            currentRot.x = SetNegativeAngle(currentRot.x);
 
-        //    Quaternion start = Quaternion.Euler(currentRot);
-        //    currentRot = ClampYRotationCameraWallRun(start);
-        //}
+            // Clamp Camera Rotation Y
+            currentRot = new Vector3(Mathf.Clamp(currentRot.x, -90f, 90f), currentRot.y, 0);
 
-        //------------------------------------------------------------
-
-        currentRot = new Vector3(Mathf.Clamp(currentRot.x, -90f, 90f), currentRot.y, transform.eulerAngles.z);
-
-        transform.rotation = Quaternion.Euler(currentRot);
-        Vector3 playerRot = new Vector3(0, currentRot.y, 0);
-        if (player_MotorMouvement != Player_MotorMouvement.WallRun)
-        {
+            transform.rotation = Quaternion.Euler(currentRot);
+            Vector3 playerRot = new Vector3(playerBody.transform.rotation.eulerAngles.x, currentRot.y, playerBody.transform.rotation.eulerAngles.z);
             playerBody.rotation = Quaternion.Euler(playerRot);
         }
         if (player_MotorMouvement == Player_MotorMouvement.Slide)
@@ -161,5 +149,11 @@ public class Camera_Controlle : Player_Settings
         }
 
         return angle;
+    }
+
+    public void UpdateMouseSensitivity()
+    {
+        speed_CameraX = 180 * sensitivitySlider.value;
+        speed_CameraY = 180 * sensitivitySlider.value;
     }
 }
