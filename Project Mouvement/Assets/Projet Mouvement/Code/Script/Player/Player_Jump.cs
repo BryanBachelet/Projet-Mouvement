@@ -14,6 +14,8 @@ public class Player_Jump : Player_Settings
 
     public float jump_CountGravity;
 
+    public float border_Bonus = 15;
+
 
     public LayerMask surfaceObstacle;
     Collider surfaceHit;
@@ -21,8 +23,6 @@ public class Player_Jump : Player_Settings
     public float offsetJump = 3;
 
 
-    private Rigidbody player_Rigid;
-    private Player_CheckState checkState;
     private bool isKeyPress;
 
     private bool checkGrounded = false;
@@ -31,51 +31,110 @@ public class Player_Jump : Player_Settings
     public string groundedSound;
 
 
+    private Rigidbody player_Rigid;
+    private Player_CheckState checkState;
+    private Player_WallRun player_WallRun;
+
     // Start is called before the first frame update
     void Start()
     {
         player_Rigid = GetComponent<Rigidbody>();
         checkState = GetComponent<Player_CheckState>();
-        
+        player_WallRun = GetComponent<Player_WallRun>();
     }
 
     // Update is called once per frame
     void FixedUpdate()
     {
-        CheckBorderSurface();
-        if (isKeyPress)
+        if (player_MotorMouvement != Player_MotorMouvement.WallRun)
         {
-            Jump();
-            isKeyPress = false;
+            CheckBorderSurface();
+            //Event Input
+            if (isKeyPress)
+            {
+                Jump();
+                isKeyPress = false;
+            }
+            // Gravity Fall
+            if (player_MouvementUp == Player_MouvementUp.Jump || player_MouvementUp == Player_MouvementUp.Fall)
+            {
+                if (jump_CountGravity > jumpTimerGravity || player_MotorMouvement == Player_MotorMouvement.Slide)
+                {
+                    player_Rigid.AddForce(-Vector3.up * gravityForce, ForceMode.Acceleration);
+                }
+                else
+                {
+                    //CountDown Gravity
+                    jump_CountGravity += Time.fixedDeltaTime;
+                }
+            }
         }
 
+<<<<<<< HEAD
+=======
         if (jump_CountGravity > jumpTimerGravity || player_MotorMouvement == Player_MotorMouvement.Slide)
         {
 
             player_Rigid.AddForce(-Vector3.up * gravityForce, ForceMode.Acceleration);
-
-        }
-        else
-        {
-            jump_CountGravity += Time.fixedDeltaTime;
-        }
-
-        if (player_Rigid.velocity.y <= -1f)
-        {
-            player_MouvementUp = Player_MouvementUp.Fall;
-        }
-        if (player_MouvementUp == Player_MouvementUp.Null)
-        {
-            jumpCount = 0;
-            jump_CountGravity = 0;
-            player_MouvementUp = Player_MouvementUp.Null;
-        }
+>>>>>>> origin/TitouanFix
 
 
     }
 
     public void Update()
     {
+        if (jumpCount < jumpNumber || player_Surface == Player_Surface.Wall )
+        {
+            if (player_MotorMouvement != Player_MotorMouvement.WallRun)
+            {
+                if (Input.GetKeyDown(KeyCode.JoystickButton0) || Input.GetKeyDown(KeyCode.Space))
+                {
+                    isKeyPress = true;
+                }
+            }
+        }
+
+        if (player_MouvementUp == Player_MouvementUp.Fall && player_Surface == Player_Surface.Wall && player_MotorMouvement != Player_MotorMouvement.WallRun)
+        {
+            player_WallRun.ActivateWallRun();
+            return;
+        }
+
+        // Change State Fall
+        if (player_Rigid.velocity.y <= -3f)
+        {
+            player_MouvementUp = Player_MouvementUp.Fall;
+          
+        }
+
+        //Reset Mouvement Up State & Jump
+        if (player_MouvementUp == Player_MouvementUp.Null)
+        {
+            jumpCount = 0;
+            jump_CountGravity = 0;
+            player_MouvementUp = Player_MouvementUp.Null;
+        }
+    }
+
+
+    private void Jump()
+    {
+        // Set Player Jump State 
+        player_MouvementUp = Player_MouvementUp.Jump;
+        // Add jump Count 
+        jumpCount++;
+
+        // Check If It's border Jump
+        if (JumpBoostBorder())
+        {
+            // Add Force to jump & Cancel gravity + Border Bonus
+            player_Rigid.AddForce(Vector3.up * (jumpValue + Mathf.Abs(player_Rigid.velocity.y) + border_Bonus), ForceMode.Impulse);
+
+        }
+        else
+        {
+            player_Rigid.AddForce(Vector3.up * (jumpValue + Mathf.Abs(player_Rigid.velocity.y)), ForceMode.Impulse);
+        }
         if (jumpCount < jumpNumber || player_Surface == Player_Surface.Wall)
         {
             if (Input.GetKeyDown(KeyCode.JoystickButton0) || Input.GetKeyDown(KeyCode.Space))
@@ -94,43 +153,35 @@ public class Player_Jump : Player_Settings
         }
         else
         {
-            checkGrounded = false;
-        }
-
-    }
-
-
-    private void Jump()
-    {
-        player_MouvementUp = Player_MouvementUp.Jump;
-
-        jumpCount++;
-        if (jump_CountGravity >= jumpTimerGravity)
-        {
-
-            player_Rigid.AddForce(Vector3.up * (jumpValue * jumpCount), ForceMode.Impulse);
-
-        }
-        else
-        {
-            if (JumpBoostBorder())
-            {
-                player_Rigid.AddForce(Vector3.up * (jumpValue + 15), ForceMode.Impulse);
-                Player_Slide.SlideInstance.setParameterByName("JumpOnSlide", 0.77f);
-
-            }
-            else
-            {
-                Player_Slide.SlideInstance.setParameterByName("JumpOnSlide", 0.51f);
-                player_Rigid.AddForce(Vector3.up * jumpValue, ForceMode.Impulse);
-
-            }
-
-        }
 
         jump_CountGravity = 0;
 
+    }
 
+    public void Jump(Vector3 dir,float power)
+    {
+        // Set Player Jump State 
+        player_MouvementUp = Player_MouvementUp.Jump;
+        // Add jump Count 
+        jumpCount++;
+        // Check If It's border Jump
+        if (JumpBoostBorder())
+        {
+            // Add Force to jump & Cancel gravity + Border Bonus
+            player_Rigid.AddForce(dir.normalized * (power + Mathf.Abs(player_Rigid.velocity.y) + border_Bonus), ForceMode.Impulse);
+        }
+        else
+        {
+            player_Rigid.AddForce(dir.normalized * (power + Mathf.Abs(player_Rigid.velocity.y)), ForceMode.Impulse);
+        }
+        jump_CountGravity = 0;
+
+    }
+
+    public void RestJumpCount()
+    {
+        jumpCount = 0;
+        Debug.Log("Jump Count Reset !");
     }
 
     public void CheckBorderSurface()
@@ -155,9 +206,9 @@ public class Player_Jump : Player_Settings
 
     public bool JumpBoostBorder()
     {
-        if(surfaceHit != null)
+        if (surfaceHit != null)
         {
-            
+
             Transform myHitTransform = surfaceHit.transform;
             if (surfaceHit.transform.position.z + ((myHitTransform.localScale.z - offsetJump) / 2) < transform.position.z && transform.position.z < ((myHitTransform.localScale.z) / 2))
             {
@@ -205,7 +256,7 @@ public class Player_Jump : Player_Settings
             Gizmos.DrawMesh(myMesh.sharedMesh, 0, myHitTransform.position, myHitTransform.rotation, new Vector3(myHitTransform.localScale.x, myHitTransform.localScale.y, myHitTransform.localScale.z));
             Gizmos.color = Color.red;
             Gizmos.DrawMesh(myMesh.sharedMesh, 0, myHitTransform.position, myHitTransform.rotation, new Vector3(myHitTransform.localScale.x - offsetJump, myHitTransform.localScale.y, myHitTransform.localScale.z - offsetJump));
-            Gizmos.DrawLine(new Vector3(surfaceHit.transform.position.x, surfaceHit.transform.position.y + 1, surfaceHit.transform.position.z), new Vector3(surfaceHit.transform.position.x /*+ myHitTransform.localScale.x*/, surfaceHit.transform.position.y + 1, surfaceHit.transform.position.z + ((myHitTransform.localScale.z - offsetJump) / 2 )));
+            Gizmos.DrawLine(new Vector3(surfaceHit.transform.position.x, surfaceHit.transform.position.y + 1, surfaceHit.transform.position.z), new Vector3(surfaceHit.transform.position.x /*+ myHitTransform.localScale.x*/, surfaceHit.transform.position.y + 1, surfaceHit.transform.position.z + ((myHitTransform.localScale.z - offsetJump) / 2)));
             Gizmos.DrawLine(new Vector3(surfaceHit.transform.position.x, surfaceHit.transform.position.y + 1, surfaceHit.transform.position.z), new Vector3(surfaceHit.transform.position.x + ((myHitTransform.localScale.x - offsetJump) / 2), surfaceHit.transform.position.y + 1, surfaceHit.transform.position.z /*+ (myHitTransform.localScale.z / 2)*/));
             Gizmos.DrawLine(new Vector3(surfaceHit.transform.position.x, surfaceHit.transform.position.y + 1, surfaceHit.transform.position.z), new Vector3(surfaceHit.transform.position.x /*+ myHitTransform.localScale.x*/, surfaceHit.transform.position.y + 1, surfaceHit.transform.position.z - ((myHitTransform.localScale.z - offsetJump) / 2)));
             Gizmos.DrawLine(new Vector3(surfaceHit.transform.position.x, surfaceHit.transform.position.y + 1, surfaceHit.transform.position.z), new Vector3(surfaceHit.transform.position.x - ((myHitTransform.localScale.x - offsetJump) / 2), surfaceHit.transform.position.y + 1, surfaceHit.transform.position.z /*+ (myHitTransform.localScale.z / 2)*/));
