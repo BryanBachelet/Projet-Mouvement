@@ -5,19 +5,23 @@ using UnityEngine;
 public class Camera_Controlle : Player_Settings
 {
     [Header("Référence")]
-   public Transform playerBody;
+    public Transform playerBody;
 
     [Header("Controller")]
     public float speed_CameraX = 180;
     public float speed_CameraY = 180;
 
+    [Header("WallRun")]
+    public float speed = 5f;
+    public float angle = 30f;
 
-    public UnityEngine.UI.Slider sensitivitySlider;
+    private float t;
+    private Player_CheckState checkState;
 
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
-        
+        checkState = playerBody.GetComponent<Player_CheckState>();
     }
 
 
@@ -53,24 +57,93 @@ public class Camera_Controlle : Player_Settings
             transform.rotation = Quaternion.Euler(currentRot);
             Vector3 playerRot = new Vector3(playerBody.transform.rotation.eulerAngles.x, currentRot.y, playerBody.transform.rotation.eulerAngles.z);
             playerBody.rotation = Quaternion.Euler(playerRot);
-            if (player_MotorMouvement == Player_MotorMouvement.Slide)
-            {
-                transform.position = new Vector3(playerBody.position.x, playerBody.position.y, playerBody.position.z);
-
-            }
-            else
-            {
-
-                transform.position = new Vector3(playerBody.position.x, playerBody.position.y + 0.5f, playerBody.position.z);
-            }
         }
-
+        if (player_MotorMouvement == Player_MotorMouvement.Slide)
+        {
+            transform.position = new Vector3(playerBody.position.x, playerBody.position.y, playerBody.position.z);
+        }
+        else
+        {
+            transform.position = new Vector3(playerBody.position.x, playerBody.position.y + 0.5f, playerBody.position.z);
+        }
+        // During Wall Run
+        if (player_MotorMouvement == Player_MotorMouvement.WallRun)
+        {
+            InclinationZCamera(speed, angle, false);
+        }
+        else
+        {
+            InclinationZCamera(speed, angle, true);
+        }
 
     }
 
-    private float SetNegativeAngle(float angle)
+    // A finir
+    private Vector3 ClampYRotationCameraWallRun(Quaternion rot)
     {
-        if (angle > 260)
+        return rot.eulerAngles;
+    }
+
+
+    //Inclination Camera Z
+    private void InclinationZCamera(float timer, float angle, bool inverse)
+    {
+        Quaternion startRot = Quaternion.Euler(transform.rotation.eulerAngles.x, transform.rotation.eulerAngles.y, 0);
+        Quaternion endRot = Quaternion.Euler(transform.rotation.eulerAngles.x, transform.rotation.eulerAngles.y, angle * checkState.wallSide);
+        if (!inverse)
+        {
+            transform.rotation = Quaternion.Lerp(startRot, endRot, t);
+            t += timer * Time.deltaTime;
+            t = Mathf.Clamp(t, 0, 1);
+            if (t == 1)
+            {
+                Debug.Log("Caméra Mouvement is done");
+            }
+        }
+        else
+        {
+            transform.rotation = Quaternion.Lerp(startRot, endRot, t);
+            t -= timer * Time.deltaTime;
+            t = Mathf.Clamp(t, 0, 1);
+            if (t == 0)
+            {
+                Debug.Log("Camera Return normal rotation");
+            }
+        }
+
+    }
+
+    private float PositifAngle(float angle)
+    {
+        if (angle < 0)
+        {
+            angle = 360 - angle;
+        }
+
+        return angle;
+    }
+
+    private float ConversionAngle(float angle)
+    {
+
+        if (angle > 180)
+        {
+            angle = angle - 360;
+        }
+        if (angle < -180)
+        {
+            angle = angle + 360;
+        }
+
+        return angle;
+    }
+
+
+    //----------------------TOOL------------
+
+    private float SetNegativeAngle(float angle, float value)
+    {
+        if (angle > value)
         {
             angle = -360 + angle;
         }
