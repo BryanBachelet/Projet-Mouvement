@@ -68,22 +68,20 @@ public class Player_Jump : Player_Settings
                     jump_CountGravity += Time.fixedDeltaTime;
                 }
             }
+            if (jump_CountGravity > jumpTimerGravity || player_MotorMouvement == Player_MotorMouvement.Slide)
+            {
+
+                player_Rigid.AddForce(-Vector3.up * gravityForce, ForceMode.Acceleration);
+            }
+
+
         }
-
-<<<<<<< HEAD
-=======
-        if (jump_CountGravity > jumpTimerGravity || player_MotorMouvement == Player_MotorMouvement.Slide)
-        {
-
-            player_Rigid.AddForce(-Vector3.up * gravityForce, ForceMode.Acceleration);
->>>>>>> origin/TitouanFix
-
 
     }
 
     public void Update()
     {
-        if (jumpCount < jumpNumber || player_Surface == Player_Surface.Wall )
+        if (jumpCount < jumpNumber || player_Surface == Player_Surface.Wall)
         {
             if (player_MotorMouvement != Player_MotorMouvement.WallRun)
             {
@@ -104,7 +102,7 @@ public class Player_Jump : Player_Settings
         if (player_Rigid.velocity.y <= -3f)
         {
             player_MouvementUp = Player_MouvementUp.Fall;
-          
+
         }
 
         //Reset Mouvement Up State & Jump
@@ -142,9 +140,9 @@ public class Player_Jump : Player_Settings
                 isKeyPress = true;
             }
         }
-        if(player_Surface == Player_Surface.Grounded)
+        if (player_Surface == Player_Surface.Grounded)
         {
-            if(!checkGrounded)
+            if (!checkGrounded)
             {
 
                 checkGrounded = true;
@@ -154,11 +152,12 @@ public class Player_Jump : Player_Settings
         else
         {
 
-        jump_CountGravity = 0;
+            jump_CountGravity = 0;
 
+        }
     }
 
-    public void Jump(Vector3 dir,float power)
+    public void Jump(Vector3 dir, float power)
     {
         // Set Player Jump State 
         player_MouvementUp = Player_MouvementUp.Jump;
@@ -242,6 +241,7 @@ public class Player_Jump : Player_Settings
         }
 
     }
+
     private void OnDrawGizmos()
     {
         if (surfaceHit != null)

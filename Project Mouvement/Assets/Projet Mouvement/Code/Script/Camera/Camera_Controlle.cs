@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Camera_Controlle : Player_Settings
 {
@@ -15,6 +16,8 @@ public class Camera_Controlle : Player_Settings
     public float speed = 5f;
     public float angle = 30f;
 
+    public Slider sensitivitySlider;
+
     private float t;
     private Player_CheckState checkState;
 
@@ -28,7 +31,7 @@ public class Camera_Controlle : Player_Settings
     void Update()
     {
 
-        if(!MacroFunction.isPause)
+        if (!MacroFunction.isPause)
         {
             float MouseInputX, MouseInputY = 0;
             // Get Mouse Input
@@ -49,14 +52,27 @@ public class Camera_Controlle : Player_Settings
             Vector3 addRot = new Vector3(MouseInputY * speed_CameraY * Time.deltaTime, MouseInputX * speed_CameraX * Time.deltaTime, 0);
             Vector3 currentRot = transform.rotation.eulerAngles + addRot;
 
-            currentRot.x = SetNegativeAngle(currentRot.x);
 
             // Clamp Camera Rotation Y
-            currentRot = new Vector3(Mathf.Clamp(currentRot.x, -90f, 90f), currentRot.y, 0);
 
-            transform.rotation = Quaternion.Euler(currentRot);
+            currentRot.x = SetNegativeAngle(currentRot.x, 270);
+            if (player_MotorMouvement == Player_MotorMouvement.WallRun)
+            {
+                currentRot = ClampYRotationCameraWallRun(currentRot);
+            }
+            else
+            {
+                currentRot = new Vector3(Mathf.Clamp(currentRot.x, -90f, 90f), currentRot.y, 0);
+
+            }
+
+
             Vector3 playerRot = new Vector3(playerBody.transform.rotation.eulerAngles.x, currentRot.y, playerBody.transform.rotation.eulerAngles.z);
-            playerBody.rotation = Quaternion.Euler(playerRot);
+            transform.rotation = Quaternion.Euler(currentRot);
+            if (player_MotorMouvement != Player_MotorMouvement.WallRun)
+            {
+                playerBody.rotation = Quaternion.Euler(playerRot);
+            }
         }
         if (player_MotorMouvement == Player_MotorMouvement.Slide)
         {
@@ -79,9 +95,22 @@ public class Camera_Controlle : Player_Settings
     }
 
     // A finir
-    private Vector3 ClampYRotationCameraWallRun(Quaternion rot)
+    private Vector3 ClampYRotationCameraWallRun(Vector3 rot)
     {
-        return rot.eulerAngles;
+        float angle = Vector3.SignedAngle(playerBody.transform.forward, transform.forward, Vector3.up);
+        Debug.LogWarning("Angle = " + angle);
+        if (Mathf.Abs(angle) > 90)
+        {
+            angle = Mathf.Clamp(angle, -90f, 90f);
+            rot = new Vector3(Mathf.Clamp(rot.x, -90f, 90f), playerBody.transform.eulerAngles.y + angle, rot.z);
+        }
+        else
+        {
+            rot = new Vector3(Mathf.Clamp(rot.x, -90f, 90f), rot.y, rot.z);
+        }
+        Debug.LogWarning("Angle Clamp = " + angle);
+     
+        return rot;
     }
 
 

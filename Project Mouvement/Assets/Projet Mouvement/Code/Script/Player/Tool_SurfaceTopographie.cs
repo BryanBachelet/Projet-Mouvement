@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Tool_SurfaceTopographie : MonoBehaviour
 {
-    public static void GetTopo(Vector3 normalSurface , Transform posStart)
+    public static Vector3 GetTopo(Vector3 normalSurface, Transform posStart, bool ActivateDebug)
     {
         // Get player direction
         // Get surfaceNormal 
@@ -19,13 +19,19 @@ public class Tool_SurfaceTopographie : MonoBehaviour
         // Search Angle Side
         float sideAngle = Vector3.Angle(posStart.right, sideProjection);
 
-        //---------------- DEBUG ---------------------------
-        //Debug.DrawRay(posStart.position, sideProjection.normalized * 100, Color.green);
-        //Debug.DrawRay(posStart.position, frontProjection.normalized * 100, Color.magenta);
-        //Debug.DrawRay(posStart.position, player2dDirection * 100, Color.yellow);
-        //Debug.Log("Front = " + frontAngle.ToString("F1") + "// Side = " + sideAngle.ToString("F1"));
-        // -------------- DEBUG ----------------------------
-        
-        // Return value
+        Vector3 angle = new Vector3(sideAngle, 0, frontAngle);
+
+        if (ActivateDebug)
+        {
+
+            //---------------- DEBUG ---------------------------
+            Debug.DrawRay(posStart.position, sideProjection.normalized * 100, Color.green);
+            Debug.DrawRay(posStart.position, frontProjection.normalized * 100, Color.magenta);
+            Debug.Log("Front = " + frontAngle.ToString("F1") + "// Side = " + sideAngle.ToString("F1"));
+            // -------------- DEBUG ----------------------------
+        }
+
+        //Return Value
+        return angle;
     }
 }

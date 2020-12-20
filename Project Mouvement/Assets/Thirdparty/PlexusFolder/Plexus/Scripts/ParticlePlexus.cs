@@ -115,7 +115,7 @@ public class ParticlePlexus : MonoBehaviour {
     {
         LineRenderer lineRenderer = lineRenderers[index];
 
-        lineRenderer.numPositions = lrVertexCount;
+        lineRenderer.positionCount = lrVertexCount;
 
         float noiseAmplitude = ((float)(distanceSqr) / (float)maxDistanceSqr);
         Vector3[] points = CalculatePoints(p1_pos, p2_pos, noiseAmplitude);

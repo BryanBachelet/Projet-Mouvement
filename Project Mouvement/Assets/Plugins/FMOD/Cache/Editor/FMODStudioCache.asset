@@ -100,6 +100,26 @@ MonoBehaviour:
     data1: 0
     data2: 0
   Exists: 0
+--- !u!114 &-7685611606347634214
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: parameter:/FacetheWinSound/SpeedFaceOf
+  m_EditorClassIdentifier: 
+  Name: SpeedFaceOf
+  Min: 0
+  Max: 1
+  Default: 0
+  ID:
+    data1: 0
+    data2: 0
+  Exists: 1
 --- !u!114 &-6620808772037288502
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -306,7 +326,7 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 0
   Parameters:
-  - {fileID: 3033371456378771303}
+  - {fileID: -7685611606347634214}
   MinDistance: 0
   MaxDistance: 0
   Length: 5466
@@ -330,7 +350,7 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 0
   Parameters:
-  - {fileID: -9102474995121389129}
+  - {fileID: 2176094260698474894}
   MinDistance: 0
   MaxDistance: 0
   Length: 36860
@@ -442,7 +462,7 @@ MonoBehaviour:
   - {fileID: 1285746978073901111}
   StringsBanks:
   - {fileID: 1436649821093650162}
-  stringsBankWriteTime: 637423687491191050
+  stringsBankWriteTime: 637430670289143801
   cacheVersion: 5
 --- !u!114 &727037798635024328
 MonoBehaviour:
@@ -501,7 +521,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Path: Assets/Thirdparty/FmodIntegration/Pfmod/Build/Desktop/Master.bank
   Name: Master
-  lastModified: 637423687491111100
+  lastModified: 637430670289133827
   LoadResult: 0
   FileSizes: []
   Exists: 1
@@ -519,7 +539,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Path: Assets/Thirdparty/FmodIntegration/Pfmod/Build/Desktop/Master.strings.bank
   Name: Master.strings
-  lastModified: 637423687491191050
+  lastModified: 637430670289143801
   LoadResult: 0
   FileSizes:
   - Name: Desktop
@@ -565,6 +585,26 @@ MonoBehaviour:
     data1: 0
     data2: 0
   Exists: 0
+--- !u!114 &2176094260698474894
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: parameter:/Sliding/JumpOnSlide
+  m_EditorClassIdentifier: 
+  Name: JumpOnSlide
+  Min: 0
+  Max: 1
+  Default: 0
+  ID:
+    data1: 0
+    data2: 0
+  Exists: 1
 --- !u!114 &3033371456378771303
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -679,7 +719,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Path: Assets/Thirdparty/FmodIntegration/Pfmod/Build/Desktop/Envir.bank
   Name: Envir
-  lastModified: 637423687490609960
+  lastModified: 637430670289103858
   LoadResult: 0
   FileSizes: []
   Exists: 1

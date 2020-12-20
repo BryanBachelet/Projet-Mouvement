@@ -4,17 +4,21 @@ using UnityEngine;
 using FMODUnity;
 public class Player_Slide : Player_Settings
 {
-    private Rigidbody player_Rigidbody;
-    private CapsuleCollider myCollider;
 
-    private bool checkAerial = false;
-    private bool checkSlide = false;
+    [Header("Input Variable")]
+    public KeyCode pcInput;
+    public KeyCode gamepadInput;
 
     public AnimationCurve accelerationOnSlide;
+
     private float tempsEcouleAccelerationSlide = 0;
     private bool resetAcceleration = false;
     private GameObject particulEffectAcceleration;
     private ParticleSystem.MainModule effectParticule;
+    private Rigidbody player_Rigidbody;
+    private CapsuleCollider myCollider;
+    private bool checkAerial = false;
+    private bool checkSlide = false;
 
     [EventRef]
     public string AerialSound;
@@ -23,14 +27,18 @@ public class Player_Slide : Player_Settings
     [EventRef]
     public string SlideSound;
     public static FMOD.Studio.EventInstance SlideInstance;
-    float volume;
+
+    public float volume;
     // Start is called before the first frame update
     void Start()
     {
         player_Rigidbody = GetComponent<Rigidbody>();
         myCollider = GetComponent<CapsuleCollider>();
-        particulEffectAcceleration = Camera.main.transform.GetChild(0).gameObject;
-        effectParticule = particulEffectAcceleration.GetComponent<ParticleSystem>().main;
+        if (Camera.main.transform.GetChild(0).gameObject != null)
+        {
+            particulEffectAcceleration = Camera.main.transform.GetChild(0).gameObject;
+            effectParticule = particulEffectAcceleration.GetComponent<ParticleSystem>().main;
+        }
         if (AerialSound != null)
         {
             AerialInstance = RuntimeManager.CreateInstance(AerialSound);
@@ -41,16 +49,33 @@ public class Player_Slide : Player_Settings
         {
             SlideInstance = RuntimeManager.CreateInstance(SlideSound);
             RuntimeManager.AttachInstanceToGameObject(SlideInstance, transform, gameObject.GetComponent<Rigidbody>());
-
         }
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(!MacroFunction.isPause)
+
+        // Bryan Code -----------------------
+
+        if (Input.GetKeyDown(pcInput) || Input.GetKeyDown(gamepadInput))
         {
-            if(resetAcceleration)
+            player_MotorMouvement = Player_MotorMouvement.Slide;
+            Debug.Log("Active Slide");
+        }
+
+        if (Input.GetKeyUp(pcInput) && Input.GetKeyUp(gamepadInput))
+        {
+            player_MotorMouvement = Player_MotorMouvement.Run;
+            Debug.Log("Déactiver Slide");
+        }
+
+        //-----------------------------------
+
+
+        if (!MacroFunction.isPause)
+        {
+            if (resetAcceleration)
             {
                 resetAcceleration = false;
                 tempsEcouleAccelerationSlide = 0;
@@ -116,7 +141,10 @@ public class Player_Slide : Player_Settings
                 //myCollider.center = new Vector3(0,-0.5f,0);
                 //Camera.main.transform.position = new Vector3(0, 0, 0);
                 player_MotorMouvement = Player_MotorMouvement.Slide;
-                particulEffectAcceleration.SetActive(true);
+                if (particulEffectAcceleration != null)
+                {
+                    particulEffectAcceleration.SetActive(true);
+                }
                 resetAcceleration = true;
 
                 //if (!checkAerial)
@@ -130,12 +158,15 @@ public class Player_Slide : Player_Settings
             }
             if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.Mouse1))
             {
-                if(!resetAcceleration)
+                if (!resetAcceleration)
                 {
                     tempsEcouleAccelerationSlide += Time.deltaTime;
                 }
                 player_Rigidbody.AddForce(transform.forward * accelerationOnSlide.Evaluate(tempsEcouleAccelerationSlide), ForceMode.Impulse);
-                effectParticule.startSpeed = 410 * (accelerationOnSlide.Evaluate(tempsEcouleAccelerationSlide) / 10);
+                if (particulEffectAcceleration != null)
+                {
+                    effectParticule.startSpeed = 410 * (accelerationOnSlide.Evaluate(tempsEcouleAccelerationSlide) / 10);
+                }
 
 
             }
@@ -145,8 +176,10 @@ public class Player_Slide : Player_Settings
                 //myCollider.center = new Vector3(0, 0f, 0);
                 //Camera.main.transform.position = new Vector3(0, 0.5f, 0);
                 player_MotorMouvement = Player_MotorMouvement.Run;
-                particulEffectAcceleration.SetActive(false);
-
+                if (particulEffectAcceleration != null)
+                {
+                    particulEffectAcceleration.SetActive(false);
+                }
                 //if (checkAerial)
                 //{
                 //    checkAerial = false;

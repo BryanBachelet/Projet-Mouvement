@@ -86,6 +86,7 @@ public class Player_WallRun : Player_Settings
     }
 
 
+
     private Vector3 GetWallDirection()
     {
         RaycastHit hit;

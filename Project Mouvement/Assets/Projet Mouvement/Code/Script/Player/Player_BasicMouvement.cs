@@ -56,7 +56,7 @@ public class Player_BasicMouvement : Player_Settings
         Vector3 dirMouvement = new Vector3(side, 0, front).normalized;
         RaycastHit hit = new RaycastHit();
         Physics.Raycast(transform.position, -Vector3.up, out hit, 10f);
-        Tool_SurfaceTopographie.GetTopo(hit.normal, transform);
+        Tool_SurfaceTopographie.GetTopo(hit.normal, transform,true);
         //------------------ DEBUG--------------------
         Debug.DrawRay(transform.position - Vector3.up, (transform.forward * front + transform.right * side) * 10f, Color.blue);
         // Debug.Log(DetectionCollision(front, side));
