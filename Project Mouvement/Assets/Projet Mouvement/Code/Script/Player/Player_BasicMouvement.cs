@@ -73,7 +73,7 @@ public class Player_BasicMouvement : Player_Settings
                 Vector3 mouvementPlayer = new Vector3(rigidbodyPlayer.velocity.x, 0, rigidbodyPlayer.velocity.z);
                 if (player_Surface != Player_Surface.Wall)
                 {
-                    mouvementPlayer = Vector3.ClampMagnitude(mouvementPlayer, maxValue);
+                    mouvementPlayer = Vector3.ClampMagnitude(new Vector3(mouvementPlayer.x,0,mouvementPlayer.z), maxValue);
                 }
                 mouvementPlayer.y = rigidbodyPlayer.velocity.y;
                 rigidbodyPlayer.velocity = mouvementPlayer;
@@ -82,7 +82,7 @@ public class Player_BasicMouvement : Player_Settings
                 if (player_Surface == Player_Surface.Grounded)
                 {
                 }
-                if (side == 0 && front == 0 && rigidbodyPlayer.velocity.magnitude > 1)
+                if (side == 0 && front == 0 && new Vector2(rigidbodyPlayer.velocity.x, rigidbodyPlayer.velocity.z).magnitude  /*rigidbodyPlayer.velocity.magnitude*/ > 1)
                 {
                     rigidbodyPlayer.velocity = new Vector3(rigidbodyPlayer.velocity.x * 0.90f, rigidbodyPlayer.velocity.y, rigidbodyPlayer.velocity.z * 0.90f);
                 }

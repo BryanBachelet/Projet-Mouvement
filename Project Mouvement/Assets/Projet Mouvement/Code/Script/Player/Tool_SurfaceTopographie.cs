@@ -27,7 +27,7 @@ public class Tool_SurfaceTopographie : MonoBehaviour
             //---------------- DEBUG ---------------------------
             Debug.DrawRay(posStart.position, sideProjection.normalized * 100, Color.green);
             Debug.DrawRay(posStart.position, frontProjection.normalized * 100, Color.magenta);
-            Debug.Log("Front = " + frontAngle.ToString("F1") + "// Side = " + sideAngle.ToString("F1"));
+            //----Debug.Log("Front = " + frontAngle.ToString("F1") + "// Side = " + sideAngle.ToString("F1"));
             // -------------- DEBUG ----------------------------
         }
 
