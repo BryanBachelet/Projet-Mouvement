@@ -18,15 +18,31 @@ public class MacroFunction : MonoBehaviour
     public static bool isPause = false;
 
     public GameObject SceneLoaderObject;
+
+    public AnimationCurve glitchEffect1;
+    public AnimationCurve glitchEffect2;
+
+    private Kino.AnalogGlitch camAnaGlitch;
+    public bool isOut = false;
     // Start is called before the first frame update
     void Start()
     {
+        camAnaGlitch = Camera.main.GetComponent<Kino.AnalogGlitch>();
         pauseUIContainer.SetActive(isPause);
     }
 
     // Update is called once per frame
     void Update()
     {
+        if(transform.position.y < -10)
+        {
+            camAnaGlitch.scanLineJitter = glitchEffect1.Evaluate(-transform.position.y / 33);
+            camAnaGlitch.colorDrift = glitchEffect2.Evaluate(-transform.position.y / 33);
+            if(transform.position.y < -100)
+            {
+                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            }
+        }
         if(Input.GetKeyDown(KeyCode.R))
         {
             tempsEcouleResetGame = 0;
@@ -35,6 +51,8 @@ public class MacroFunction : MonoBehaviour
         {
             tempsEcouleResetGame += Time.deltaTime;
             filledImageReset.fillAmount = tempsEcouleResetGame / timeResetGame;
+            camAnaGlitch.scanLineJitter = glitchEffect1.Evaluate(tempsEcouleResetGame);
+            camAnaGlitch.colorDrift = glitchEffect2.Evaluate(tempsEcouleResetGame);
             if (tempsEcouleResetGame >= timeResetGame)
             {
                 SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
@@ -44,6 +62,8 @@ public class MacroFunction : MonoBehaviour
         else if(Input.GetKeyUp(KeyCode.R))
         {
             tempsEcouleResetGame = 0;
+            camAnaGlitch.scanLineJitter = glitchEffect1.Evaluate(tempsEcouleResetGame);
+            camAnaGlitch.colorDrift = glitchEffect2.Evaluate(tempsEcouleResetGame);
             filledImageReset.fillAmount = tempsEcouleResetGame / timeResetGame;
 
         }
@@ -76,6 +96,21 @@ public class MacroFunction : MonoBehaviour
         {
             tempsEcouleLeaveGame = 0;
             filledImageLeave.fillAmount = tempsEcouleLeaveGame / timeLeaveGame;
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.tag == "GameSpace")
+        {
+            isOut = true;
+        }
+    }
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.tag == "GameSpace")
+        {
+            isOut = false;
         }
     }
 }

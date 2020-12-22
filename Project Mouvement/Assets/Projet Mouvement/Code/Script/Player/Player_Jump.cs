@@ -25,7 +25,7 @@ public class Player_Jump : Player_Settings
 
     private bool isKeyPress;
 
-    private bool checkGrounded = false;
+    public bool checkGrounded = false;
 
     [EventRef]
     public string groundedSound;
@@ -34,6 +34,7 @@ public class Player_Jump : Player_Settings
     private Rigidbody player_Rigid;
     private Player_CheckState checkState;
     private Player_WallRun player_WallRun;
+    private Camera_Controlle myCameraControl;
 
     // Start is called before the first frame update
     void Start()
@@ -41,6 +42,7 @@ public class Player_Jump : Player_Settings
         player_Rigid = GetComponent<Rigidbody>();
         checkState = GetComponent<Player_CheckState>();
         player_WallRun = GetComponent<Player_WallRun>();
+        myCameraControl = Camera.main.GetComponent<Camera_Controlle>();
     }
 
     // Update is called once per frame
@@ -81,6 +83,8 @@ public class Player_Jump : Player_Settings
 
     public void Update()
     {
+
+
         if (jumpCount < jumpNumber || player_Surface == Player_Surface.Wall)
         {
             if (player_MotorMouvement != Player_MotorMouvement.WallRun)
@@ -112,11 +116,14 @@ public class Player_Jump : Player_Settings
             jump_CountGravity = 0;
             player_MouvementUp = Player_MouvementUp.Null;
         }
+
+        
     }
 
 
     private void Jump()
     {
+        //myCameraControl.offSetToMove = new Vector3(0, 1, 0);
         // Set Player Jump State 
         player_MouvementUp = Player_MouvementUp.Jump;
         // Add jump Count 
@@ -147,6 +154,7 @@ public class Player_Jump : Player_Settings
 
                 checkGrounded = true;
                 RuntimeManager.PlayOneShot(groundedSound, transform.position);
+
             }
         }
         else
@@ -155,10 +163,14 @@ public class Player_Jump : Player_Settings
             jump_CountGravity = 0;
 
         }
+        checkGrounded = false;
+
+
     }
 
     public void Jump(Vector3 dir, float power)
     {
+        
         // Set Player Jump State 
         player_MouvementUp = Player_MouvementUp.Jump;
         // Add jump Count 
@@ -174,7 +186,7 @@ public class Player_Jump : Player_Settings
             player_Rigid.AddForce(dir.normalized * (power + Mathf.Abs(player_Rigid.velocity.y)), ForceMode.Impulse);
         }
         jump_CountGravity = 0;
-
+        checkGrounded = false;
     }
 
     public void RestJumpCount()

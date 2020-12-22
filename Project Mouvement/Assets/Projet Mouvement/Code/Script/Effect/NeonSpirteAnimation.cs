@@ -36,7 +36,6 @@ public class NeonSpirteAnimation : MonoBehaviour
     {
         addToStop = Random.Range(-3, rndMaxStopAdd);
         sheetLenght = textureNeonSheet.Length;
-        Debug.Log(sheetLenght);
 
         myRenderer = gameObject.GetComponent<Renderer>();
         myCurrentMaterial = myRenderer.material;

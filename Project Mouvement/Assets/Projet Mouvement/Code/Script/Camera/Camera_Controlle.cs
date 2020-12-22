@@ -21,8 +21,12 @@ public class Camera_Controlle : Player_Settings
     private float t;
     private Player_CheckState checkState;
 
+    public Vector3 offSetToMove = Vector3.zero;
+    public Vector3 offSetCurrent = Vector3.zero;
+    public float tempsTransition;
     void Start()
     {
+        transform.position = playerBody.position + offSetCurrent;
         Cursor.lockState = CursorLockMode.Locked;
         checkState = playerBody.GetComponent<Player_CheckState>();
     }
@@ -74,14 +78,8 @@ public class Camera_Controlle : Player_Settings
                 playerBody.rotation = Quaternion.Euler(playerRot);
             }
         }
-        if (player_MotorMouvement == Player_MotorMouvement.Slide)
-        {
-            transform.position = new Vector3(playerBody.position.x, playerBody.position.y, playerBody.position.z);
-        }
-        else
-        {
-            transform.position = new Vector3(playerBody.position.x, playerBody.position.y + 0.5f, playerBody.position.z);
-        }
+        transform.position = playerBody.position + offSetCurrent;
+
         // During Wall Run
         if (player_MotorMouvement == Player_MotorMouvement.WallRun)
         {
@@ -90,6 +88,18 @@ public class Camera_Controlle : Player_Settings
         else
         {
             InclinationZCamera(speed, angle, true);
+        }
+        Debug.Log("current offSet is : " + offSetCurrent + " And offSet to move is : " + offSetToMove);
+        if(Vector3.Distance(offSetCurrent, offSetToMove) > 0.01f)
+        {
+            LerpingToNewPos();
+        }
+        else
+        {
+            if(player_MotorMouvement != Player_MotorMouvement.Slide)
+            {
+                offSetToMove = new Vector3(0, 1, 0);
+            }
         }
 
     }
@@ -136,7 +146,7 @@ public class Camera_Controlle : Player_Settings
             t = Mathf.Clamp(t, 0, 1);
             if (t == 0)
             {
-                Debug.Log("Camera Return normal rotation");
+                //----Debug.Log("Camera Return normal rotation");
             }
         }
 
@@ -184,5 +194,11 @@ public class Camera_Controlle : Player_Settings
     {
         speed_CameraX = 180 * sensitivitySlider.value;
         speed_CameraY = 180 * sensitivitySlider.value;
+    }
+
+    public void LerpingToNewPos()
+    {
+        offSetCurrent = Vector3.Lerp(offSetCurrent, offSetToMove, tempsTransition);
+        
     }
 }

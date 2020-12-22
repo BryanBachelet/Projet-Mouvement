@@ -21,6 +21,12 @@ public class CameraVisualEffect : Player_Settings
     public float timeMaxAcceleration = 1f;
 
     private bool resetAcceleration = false;
+
+
+    [Header("Flexion")]
+    public AnimationCurve ani_CurveFlexion;
+    public float timeMaxFlexion = 1f;
+
     // Start is called before the first frame update
     void Start()
     {

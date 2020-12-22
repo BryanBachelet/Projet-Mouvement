@@ -29,11 +29,14 @@ public class Player_Slide : Player_Settings
     public static FMOD.Studio.EventInstance SlideInstance;
 
     public float volume;
+
+    private Camera_Controlle s_CC;
     // Start is called before the first frame update
     void Start()
     {
         player_Rigidbody = GetComponent<Rigidbody>();
         myCollider = GetComponent<CapsuleCollider>();
+        s_CC = Camera.main.GetComponent<Camera_Controlle>();
         if (Camera.main.transform.GetChild(0).gameObject != null)
         {
             particulEffectAcceleration = Camera.main.transform.GetChild(0).gameObject;
@@ -62,12 +65,16 @@ public class Player_Slide : Player_Settings
         {
             player_MotorMouvement = Player_MotorMouvement.Slide;
             Debug.Log("Active Slide");
+
+
         }
 
         if (Input.GetKeyUp(pcInput) && Input.GetKeyUp(gamepadInput))
         {
             player_MotorMouvement = Player_MotorMouvement.Run;
             Debug.Log("Déactiver Slide");
+
+
         }
 
         //-----------------------------------
@@ -105,6 +112,7 @@ public class Player_Slide : Player_Settings
                 {
 
                     checkSlide = true;
+
                     SlideInstance.setParameterByName("JumpOnSlide", 0.0f);
                     SlideInstance.setVolume(1);
                     Debug.Log((double)SlideInstance.getVolume(out volume));
@@ -118,7 +126,7 @@ public class Player_Slide : Player_Settings
                 {
                     //SlideInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
                     volume -= 1.5f * Time.deltaTime;
-                    Debug.Log("Volume is : " + volume);
+                    //Debug.Log("Volume is : " + volume);
                     if (volume > 0)
                     {
                         SlideInstance.setVolume(volume);
@@ -141,6 +149,8 @@ public class Player_Slide : Player_Settings
                 //myCollider.center = new Vector3(0,-0.5f,0);
                 //Camera.main.transform.position = new Vector3(0, 0, 0);
                 player_MotorMouvement = Player_MotorMouvement.Slide;
+                s_CC.offSetToMove = new Vector3(0, 0.25f, 0);
+                s_CC.tempsTransition = 0.8f;
                 if (particulEffectAcceleration != null)
                 {
                     particulEffectAcceleration.SetActive(true);
@@ -176,6 +186,8 @@ public class Player_Slide : Player_Settings
                 //myCollider.center = new Vector3(0, 0f, 0);
                 //Camera.main.transform.position = new Vector3(0, 0.5f, 0);
                 player_MotorMouvement = Player_MotorMouvement.Run;
+                s_CC.offSetToMove = new Vector3(0, 1f, 0);
+                s_CC.tempsTransition = 0.5f;
                 if (particulEffectAcceleration != null)
                 {
                     particulEffectAcceleration.SetActive(false);

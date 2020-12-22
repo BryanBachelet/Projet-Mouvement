@@ -130,7 +130,7 @@ public class Player_WallRun : Player_Settings
         checkState = GetComponent<Player_CheckState>();
         if (checkState != null)
         {
-            Debug.Log("Check State");
+            //----Debug.Log("Check State");
         }
         else
         {
@@ -143,7 +143,7 @@ public class Player_WallRun : Player_Settings
         playerRigid = GetComponent<Rigidbody>();
         if (playerRigid != null)
         {
-            Debug.Log("Rigidbody Find");
+            //----Debug.Log("Rigidbody Find");
         }
         else
         {
@@ -156,7 +156,7 @@ public class Player_WallRun : Player_Settings
         playerJump = GetComponent<Player_Jump>();
         if (playerJump != null)
         {
-            Debug.Log("Player_Jump Find");
+            //----Debug.Log("Player_Jump Find");
         }
         else
         {
