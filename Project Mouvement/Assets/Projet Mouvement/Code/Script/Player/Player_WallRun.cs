@@ -147,7 +147,7 @@ public class Player_WallRun : Player_Settings
         }
         else
         {
-            Debug.LogWarning("You need to put Player_Jump on the object");
+            Debug.LogWarning("You need to put Player Rigidbody on the object");
         }
     }
 

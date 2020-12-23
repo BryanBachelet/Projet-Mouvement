@@ -45,7 +45,7 @@ public class Player_CheckState : Player_Settings
     private void SetGrounded()
     {
         player_Surface = Player_Surface.Grounded;
-        CheckFlexionForce();
+       // CheckFlexionForce();
         player_MouvementUp = Player_MouvementUp.Null;
         if (player_MotorMouvement == Player_MotorMouvement.WallRun)
         {
