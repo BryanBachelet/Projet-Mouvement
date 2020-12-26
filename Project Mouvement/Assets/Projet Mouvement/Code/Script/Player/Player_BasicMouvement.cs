@@ -10,16 +10,17 @@ using System;
 [RequireComponent(typeof(Player_Input))]
 public class Player_BasicMouvement : Player_Settings
 {
- 
+
     public ForceMode forceMode = ForceMode.Impulse;
 
     //--- Variable ---
     [Header("Debug")]
     public bool activeDebug;
-    private float tempsEcouleResetTemps ;
+    private float tempsEcouleResetTemps;
 
     [Header("Feedback")]
     public Text uiText;
+
 
     private float front;
     private float side;
@@ -60,19 +61,19 @@ public class Player_BasicMouvement : Player_Settings
         //--------------TEST----------
 
         //------------------ DEBUG--------------------
-        Debug.DrawRay(transform.position - Vector3.up, (transform.forward * front + transform.right * side) * 10f, Color.blue);
+        Debug.DrawRay(transform.position - Vector3.up, (transform.forward  * front + transform.right * side) * 10f, Color.blue);    
         // Debug.Log(DetectionCollision(front, side));
         //------------------ DEBUG--------------------
 
-
+      //  Debug.Log(DetectionCollision(front, side));
         if (!DetectionCollision(front, side))
         {
             rigidbodyPlayer.AddForce(transform.forward * inputDir.z * playerSpeed.accelerationSpeed, forceMode);
             rigidbodyPlayer.AddForce(transform.right * inputDir.x * playerSpeed.accelerationSpeed, forceMode);
 
-            Vector3 mouvementPlayer = Vector3.ClampMagnitude(new Vector3(rigidbodyPlayer.velocity.x, 0, rigidbodyPlayer.velocity.z), playerSpeed.maximumSpeed);
+            Vector3 mouvementPlayer = Vector3.ClampMagnitude(new Vector3(rigidbodyPlayer.velocity.x, rigidbodyPlayer.velocity.y, rigidbodyPlayer.velocity.z), playerSpeed.maximumSpeed);
             playerSpeed.currentSpeed = mouvementPlayer.magnitude;
-            mouvementPlayer.y = rigidbodyPlayer.velocity.y;
+            //mouvementPlayer.y = rigidbodyPlayer.velocity.y;
             rigidbodyPlayer.velocity = mouvementPlayer;
 
             //Clamp velocity on Z & X axes
@@ -80,7 +81,7 @@ public class Player_BasicMouvement : Player_Settings
 
             if (inputDir.magnitude == 0 && mouvementPlayer.magnitude > 1)
             {
-                Debug.Log("Current Speed = " + playerSpeed.currentSpeed);
+              
                 rigidbodyPlayer.velocity = rigidbodyPlayer.velocity.normalized * playerSpeed.currentSpeed;
                 playerSpeed.DeccelerationPlayerSpeed();
             }
@@ -112,12 +113,28 @@ public class Player_BasicMouvement : Player_Settings
                 side = playerInput.GetAxeValue("Horizontal");
             }
 
+
+
             EffectVisuel();
             DebugUI();
+            SetPlayerRotatation();
+            if (player_Surface != Player_Surface.Grounded) return;
+            SetUpState(front, side);
+
         }
 
     }
 
+
+
+    public void SetPlayerRotatation()
+    {
+        RaycastHit hit = new RaycastHit();
+        Physics.Raycast(transform.position , - Vector3.up, out hit, 10f);
+        Vector3 anglePlayer = Tool_SurfaceTopographie.GetTopo(hit.normal, transform, false);
+       // Debug.Log("X = " + anglePlayer.x + " Z =" + anglePlayer.z);
+        transform.rotation =  Quaternion.Euler(anglePlayer.x, transform.rotation.eulerAngles.y, anglePlayer.z);
+    }
 
 
 
@@ -125,25 +142,21 @@ public class Player_BasicMouvement : Player_Settings
     public bool DetectionCollision(float forward, float side)
     {
         bool IsDectect = false;
-        IsDectect = Physics.Raycast(transform.position - Vector3.up, (transform.forward * forward + transform.right * side), 1.1f);
+        Debug.DrawRay(transform.position - 0.9f*Vector3.up, (transform.forward * forward + transform.right * side).normalized * 100, Color.red);
+        IsDectect = Physics.Raycast(transform.position - (0.8f * Vector3.up), (transform.forward * forward + transform.right * side), 1.1f);
         if (IsDectect) return IsDectect;
-        IsDectect = Physics.Raycast(transform.position + Vector3.up, transform.forward * forward + transform.right * side, 1.1f);
+        Debug.DrawRay(transform.position + Vector3.up, (transform.forward * forward + transform.right * side).normalized * 100, Color.red);
+        IsDectect = Physics.Raycast(transform.position + transform.up, transform.forward * forward + transform.right * side, 1.1f);
+        Debug.Log(IsDectect); 
 
         return IsDectect;
     }
 
     public void SetUpState(float front, float side)
     {
-        if (player_MotorMouvement != Player_MotorMouvement.Slide)
+        if (front != 0 && side != 0)
         {
-            if (front == 0 && side == 0)
-            {
-                player_MotorMouvement = Player_MotorMouvement.Null;
-            }
-            else
-            {
-                player_MotorMouvement = Player_MotorMouvement.Run;
-            }
+            player_MotorMouvement = Player_MotorMouvement.Run;
         }
     }
 

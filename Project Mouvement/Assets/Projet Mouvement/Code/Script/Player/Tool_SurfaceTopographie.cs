@@ -10,16 +10,18 @@ public class Tool_SurfaceTopographie : MonoBehaviour
         // Get surfaceNormal 
 
         // Projetction Plan => Front 
-        Vector3 frontProjection = Vector3.ProjectOnPlane(posStart.forward, normalSurface);
+        Vector3 frontProjection = Vector3.ProjectOnPlane(Quaternion.Euler(0,posStart.eulerAngles.y,0) *Vector3.forward  , normalSurface);
         // Projection Plan => Side;
-        Vector3 sideProjection = Vector3.ProjectOnPlane(posStart.right, normalSurface);
+        Vector3 sideProjection = Vector3.ProjectOnPlane(Quaternion.Euler(0, posStart.eulerAngles.y, 0) * Vector3.right, normalSurface);
 
         // Search Angle Front
-        float frontAngle = Vector3.Angle(posStart.forward, frontProjection);
+        float frontAngle = Vector3.Angle(Quaternion.Euler(0, posStart.eulerAngles.y, 0) *Vector3.forward, frontProjection) ;
+        
         // Search Angle Side
-        float sideAngle = Vector3.Angle(posStart.right, sideProjection);
+        float sideAngle = Vector3.Angle(Quaternion.Euler(0, posStart.eulerAngles.y, 0) * Vector3.right, sideProjection);
 
-        Vector3 angle = new Vector3(sideAngle, 0, frontAngle);
+        Vector3 angle = new Vector3(Mathf.Sign(ConversionAngle(posStart.eulerAngles.y)) * frontAngle, 0, Mathf.Sign(ConversionAngle(posStart.eulerAngles.y)) * sideAngle);
+     
 
         if (ActivateDebug)
         {
@@ -32,6 +34,20 @@ public class Tool_SurfaceTopographie : MonoBehaviour
         }
 
         //Return Value
+        return angle;
+    }
+    public static float ConversionAngle(float angle)
+    {
+
+        if (angle > 180)
+        {
+            angle = angle - 360;
+        }
+        if (angle < -180)
+        {
+            angle = angle + 360;
+        }
+
         return angle;
     }
 }
