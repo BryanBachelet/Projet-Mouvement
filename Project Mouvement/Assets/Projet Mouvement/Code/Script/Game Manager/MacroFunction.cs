@@ -23,7 +23,7 @@ public class MacroFunction : MonoBehaviour
     public AnimationCurve glitchEffect2;
 
     private Kino.AnalogGlitch camAnaGlitch;
-    public bool isOut = false;
+    private bool isOut = false;
     // Start is called before the first frame update
     void Start()
     {
@@ -36,6 +36,7 @@ public class MacroFunction : MonoBehaviour
     {
         if(transform.position.y < -10)
         {
+            
             camAnaGlitch.scanLineJitter = glitchEffect1.Evaluate(-transform.position.y / 33);
             camAnaGlitch.colorDrift = glitchEffect2.Evaluate(-transform.position.y / 33);
             if(transform.position.y < -100)
