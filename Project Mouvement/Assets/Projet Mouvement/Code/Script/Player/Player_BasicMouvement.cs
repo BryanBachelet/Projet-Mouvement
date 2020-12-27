@@ -51,37 +51,20 @@ public class Player_BasicMouvement : Player_Settings
     {
         if (player_Surface != Player_Surface.Grounded) return;
 
-
         Vector3 inputDir = new Vector3(side, 0, front).normalized;
 
-        // --------------TEST----------
-        RaycastHit hit = new RaycastHit();
-        Physics.Raycast(transform.position, -Vector3.up, out hit, 10f);
-        Tool_SurfaceTopographie.GetTopo(hit.normal, transform, true);
-        //--------------TEST----------
-
-        //------------------ DEBUG--------------------
-        Debug.DrawRay(transform.position - Vector3.up, (transform.forward  * front + transform.right * side) * 10f, Color.blue);    
-        // Debug.Log(DetectionCollision(front, side));
-        //------------------ DEBUG--------------------
-
-      //  Debug.Log(DetectionCollision(front, side));
-        if (!DetectionCollision(front, side))
+        if (!DetectionCollision(front, side, activeDebug))
         {
             rigidbodyPlayer.AddForce(transform.forward * inputDir.z * playerSpeed.accelerationSpeed, forceMode);
             rigidbodyPlayer.AddForce(transform.right * inputDir.x * playerSpeed.accelerationSpeed, forceMode);
 
             Vector3 mouvementPlayer = Vector3.ClampMagnitude(new Vector3(rigidbodyPlayer.velocity.x, rigidbodyPlayer.velocity.y, rigidbodyPlayer.velocity.z), playerSpeed.maximumSpeed);
             playerSpeed.currentSpeed = mouvementPlayer.magnitude;
-            //mouvementPlayer.y = rigidbodyPlayer.velocity.y;
+       
             rigidbodyPlayer.velocity = mouvementPlayer;
-
-            //Clamp velocity on Z & X axes
-
 
             if (inputDir.magnitude == 0 && mouvementPlayer.magnitude > 1)
             {
-              
                 rigidbodyPlayer.velocity = rigidbodyPlayer.velocity.normalized * playerSpeed.currentSpeed;
                 playerSpeed.DeccelerationPlayerSpeed();
             }
@@ -113,11 +96,9 @@ public class Player_BasicMouvement : Player_Settings
                 side = playerInput.GetAxeValue("Horizontal");
             }
 
-
-
             EffectVisuel();
             DebugUI();
-            SetPlayerRotatation();
+            SetPlayerRotatation(activeDebug) ;
             if (player_Surface != Player_Surface.Grounded) return;
             SetUpState(front, side);
 
@@ -127,27 +108,26 @@ public class Player_BasicMouvement : Player_Settings
 
 
 
-    public void SetPlayerRotatation()
+    public void SetPlayerRotatation(bool debug)
     {
         RaycastHit hit = new RaycastHit();
-        Physics.Raycast(transform.position , - Vector3.up, out hit, 10f);
-        Vector3 anglePlayer = Tool_SurfaceTopographie.GetTopo(hit.normal, transform, false);
-       // Debug.Log("X = " + anglePlayer.x + " Z =" + anglePlayer.z);
-        transform.rotation =  Quaternion.Euler(anglePlayer.x, transform.rotation.eulerAngles.y, anglePlayer.z);
+        Physics.Raycast(transform.position, -Vector3.up, out hit, 10f);
+        Vector3 anglePlayer = Tool_SurfaceTopographie.GetTopo(hit.normal, transform, debug);
+        transform.rotation = Quaternion.Euler(anglePlayer.x, transform.rotation.eulerAngles.y, anglePlayer.z);
     }
 
 
 
     // Check if Obstacle in the front direction
-    public bool DetectionCollision(float forward, float side)
+    public bool DetectionCollision(float forward, float side, bool debug)
     {
         bool IsDectect = false;
-        Debug.DrawRay(transform.position - 0.9f*Vector3.up, (transform.forward * forward + transform.right * side).normalized * 100, Color.red);
+        if (debug) Debug.DrawRay(transform.position - 0.9f * Vector3.up, (transform.forward * forward + transform.right * side).normalized * 100, Color.red);
         IsDectect = Physics.Raycast(transform.position - (0.8f * Vector3.up), (transform.forward * forward + transform.right * side), 1.1f);
         if (IsDectect) return IsDectect;
-        Debug.DrawRay(transform.position + Vector3.up, (transform.forward * forward + transform.right * side).normalized * 100, Color.red);
+        if (debug) Debug.DrawRay(transform.position + Vector3.up, (transform.forward * forward + transform.right * side).normalized * 100, Color.red);
         IsDectect = Physics.Raycast(transform.position + transform.up, transform.forward * forward + transform.right * side, 1.1f);
-        Debug.Log(IsDectect); 
+        if (debug) Debug.Log(IsDectect);
 
         return IsDectect;
     }

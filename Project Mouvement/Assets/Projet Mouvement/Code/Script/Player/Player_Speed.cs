@@ -13,15 +13,15 @@ public class Player_Speed : MonoBehaviour
 
 
     [Header("Maximum Speed")]
-    public float minLimiteSpeed;
-    public float maximumSpeed;
-    public float gainValueMaxSpeed;
-    public float deccelerationMaxSpeed;
+    public float minLimiteSpeed = 10f;
+    public float maximumSpeed = 10f;
+    public float gainValueMaxSpeed = 10f;
+    public float deccelerationMaxSpeed = 10f;
 
    [Header("Action Momentum")]
-    public int actionSucceed;
-    public float timeMomentum;
-    public float currentTimeMomentum;
+    public int actionSucceed = 0;
+    public float timeMomentum = 5f;
+    public float currentTimeMomentum = 0f;
     public bool momentumActive = false;
 
 
