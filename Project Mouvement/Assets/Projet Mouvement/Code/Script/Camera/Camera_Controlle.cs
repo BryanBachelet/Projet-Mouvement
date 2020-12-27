@@ -24,6 +24,7 @@ public class Camera_Controlle : Player_Settings
     public Vector3 offSetToMove = Vector3.zero;
     public Vector3 offSetCurrent = Vector3.zero;
     public float tempsTransition;
+    public bool debug;
     void Start()
     {
         transform.position = playerBody.position + offSetCurrent;
@@ -89,7 +90,8 @@ public class Camera_Controlle : Player_Settings
         {
             InclinationZCamera(speed, angle, true);
         }
-        Debug.Log("current offSet is : " + offSetCurrent + " And offSet to move is : " + offSetToMove);
+        if(debug) Debug.Log("current offSet is : " + offSetCurrent + " And offSet to move is : " + offSetToMove);
+
         if(Vector3.Distance(offSetCurrent, offSetToMove) > 0.01f)
         {
             LerpingToNewPos();
@@ -108,7 +110,7 @@ public class Camera_Controlle : Player_Settings
     private Vector3 ClampYRotationCameraWallRun(Vector3 rot)
     {
         float angle = Vector3.SignedAngle(playerBody.transform.forward, transform.forward, Vector3.up);
-        Debug.LogWarning("Angle = " + angle);
+        if (debug) Debug.LogWarning("Angle = " + angle);
         if (Mathf.Abs(angle) > 90)
         {
             angle = Mathf.Clamp(angle, -90f, 90f);
@@ -118,7 +120,7 @@ public class Camera_Controlle : Player_Settings
         {
             rot = new Vector3(Mathf.Clamp(rot.x, -90f, 90f), rot.y, rot.z);
         }
-        Debug.LogWarning("Angle Clamp = " + angle);
+        if (debug) Debug.LogWarning("Angle Clamp = " + angle);
      
         return rot;
     }
@@ -136,7 +138,7 @@ public class Camera_Controlle : Player_Settings
             t = Mathf.Clamp(t, 0, 1);
             if (t == 1)
             {
-                Debug.Log("Caméra Mouvement is done");
+                if (debug) Debug.Log("Caméra Mouvement is done");
             }
         }
         else

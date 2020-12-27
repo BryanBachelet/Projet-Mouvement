@@ -19,7 +19,7 @@ public class Player_CheckState : Player_Settings
     {
         //Check if the player is on the ground
         currentstate = player_Surface;
-        if (Physics.Raycast(transform.position, -transform.up, 1.001f))
+        if (Physics.Raycast(transform.position, -transform.up, 1.5f))
         {
             
             SetGrounded();
@@ -45,7 +45,7 @@ public class Player_CheckState : Player_Settings
     private void SetGrounded()
     {
         player_Surface = Player_Surface.Grounded;
-        CheckFlexionForce();
+       // CheckFlexionForce();
         player_MouvementUp = Player_MouvementUp.Null;
         if (player_MotorMouvement == Player_MotorMouvement.WallRun)
         {

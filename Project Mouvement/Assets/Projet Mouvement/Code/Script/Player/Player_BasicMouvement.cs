@@ -2,39 +2,36 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System;
+
 
 [RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(Player_Speed))]
+[RequireComponent(typeof(Player_Input))]
 public class Player_BasicMouvement : Player_Settings
 {
 
-    //Need to inherited to player setting
-
-    // Register Input of mouvement
-    [Header("Input Setting")]
-    public KeyCode Forward = KeyCode.Z;
-    public KeyCode Back = KeyCode.S;
-    public KeyCode Left = KeyCode.Q;
-    public KeyCode Right = KeyCode.D;
-
-    [Header("Mouvement Setting")]
-    public float accelerationValue = 1;
-    public float deccelerationValue = 1;
-    public float maxValue = 10;
     public ForceMode forceMode = ForceMode.Impulse;
 
+    //--- Variable ---
+    [Header("Debug")]
+    public bool activeDebug;
+    private float tempsEcouleResetTemps;
 
-    [SerializeField]
     [Header("Feedback")]
-    private Text uiText;
+    public Text uiText;
+
 
     private float front;
     private float side;
 
-    private float currentSpeed;
-    static public Rigidbody rigidbodyPlayer;
-    CameraVisualEffect myCVEscript;
-    private float tempsEcouleResetTemps = 0;
-    private Player_Jump player_Jump;
+    //--------- Essential Component Reference --------
+    private Rigidbody rigidbodyPlayer;
+    private Player_Input playerInput;
+    private Player_Speed playerSpeed;
+
+    //-------- Additionel Component Reference --------
+    private CameraVisualEffect cameraVisualEffect;
 
     // Start is called before the first frame update
     void Start()
@@ -42,116 +39,111 @@ public class Player_BasicMouvement : Player_Settings
         InitState();
     }
 
-    public void InitState()
+    private void InitState()
     {
-        rigidbodyPlayer = GetComponent<Rigidbody>();
-        player_Jump = GetComponent<Player_Jump>();
-
-        myCVEscript = Camera.main.GetComponent<CameraVisualEffect>();
+        GetPlayerRigidBody(activeDebug);
+        GetPlayerSpeed(activeDebug);
+        GetPlayerInput(activeDebug);
+        GetCameraVisualEffect(activeDebug);
     }
 
     void FixedUpdate()
     {
-        //Player acceleration
-        Vector3 dirMouvement = new Vector3(side, 0, front).normalized;
-        RaycastHit hit = new RaycastHit();
-        Physics.Raycast(transform.position, -Vector3.up, out hit, 10f);
-        Tool_SurfaceTopographie.GetTopo(hit.normal, transform,true);
-        //------------------ DEBUG--------------------
-        Debug.DrawRay(transform.position - Vector3.up, (transform.forward * front + transform.right * side) * 10f, Color.blue);
-        // Debug.Log(DetectionCollision(front, side));
-        //------------------ DEBUG--------------------
-        if (player_MotorMouvement != Player_MotorMouvement.WallRun)
+        if (player_Surface != Player_Surface.Grounded) return;
+
+        Vector3 inputDir = new Vector3(side, 0, front).normalized;
+
+        if (!DetectionCollision(front, side, activeDebug))
         {
-            if (!DetectionCollision(front, side))
+            rigidbodyPlayer.AddForce(transform.forward * inputDir.z * playerSpeed.accelerationSpeed, forceMode);
+            rigidbodyPlayer.AddForce(transform.right * inputDir.x * playerSpeed.accelerationSpeed, forceMode);
 
+            Vector3 mouvementPlayer = Vector3.ClampMagnitude(new Vector3(rigidbodyPlayer.velocity.x, rigidbodyPlayer.velocity.y, rigidbodyPlayer.velocity.z), playerSpeed.maximumSpeed);
+            playerSpeed.currentSpeed = mouvementPlayer.magnitude;
+       
+            rigidbodyPlayer.velocity = mouvementPlayer;
+
+            if (inputDir.magnitude == 0 && mouvementPlayer.magnitude > 1)
             {
-                rigidbodyPlayer.AddForce(transform.forward * dirMouvement.z * accelerationValue, forceMode);
-                rigidbodyPlayer.AddForce(transform.right * dirMouvement.x * accelerationValue, forceMode);
-
-                //Clamp velocity on Z & X axes
-                Vector3 mouvementPlayer = new Vector3(rigidbodyPlayer.velocity.x, 0, rigidbodyPlayer.velocity.z);
-                if (player_Surface != Player_Surface.Wall)
-                {
-                    mouvementPlayer = Vector3.ClampMagnitude(new Vector3(mouvementPlayer.x,0,mouvementPlayer.z), maxValue);
-                }
-                mouvementPlayer.y = rigidbodyPlayer.velocity.y;
-                rigidbodyPlayer.velocity = mouvementPlayer;
-
-                SetUpState(front, side);
-                if (player_Surface == Player_Surface.Grounded)
-                {
-                }
-                if (side == 0 && front == 0 && new Vector2(rigidbodyPlayer.velocity.x, rigidbodyPlayer.velocity.z).magnitude  /*rigidbodyPlayer.velocity.magnitude*/ > 1)
-                {
-                    rigidbodyPlayer.velocity = new Vector3(rigidbodyPlayer.velocity.x * 0.90f, rigidbodyPlayer.velocity.y, rigidbodyPlayer.velocity.z * 0.90f);
-                }
+                rigidbodyPlayer.velocity = rigidbodyPlayer.velocity.normalized * playerSpeed.currentSpeed;
+                playerSpeed.DeccelerationPlayerSpeed();
             }
+            SetUpState(front, side);
         }
 
 
-        front = 0;
-        side = 0;
+
+
     }
 
 
     private void Update()
     {
-        if(!MacroFunction.isPause)
+        if (!MacroFunction.isPause)
         {
+            front = 0;
+            side = 0;
             // Input of the player
             if (!IsGamepad)
             {
-                front = GetAxis(Forward, Back, true);
-                side = GetAxis(Right, Left, true);
+                front = playerInput.GetAxis(playerInput.forwardPc, playerInput.backPc);
+                side = playerInput.GetAxis(playerInput.leftPc, playerInput.rightPc);
 
             }
             else
             {
-                front = Input.GetAxis("Vertical");
-                side = Input.GetAxis("Horizontal");
+                front = playerInput.GetAxeValue("Vertical"); ;
+                side = playerInput.GetAxeValue("Horizontal");
             }
-            if (Input.GetKeyDown(KeyCode.T) || Input.GetKeyDown(KeyCode.Joystick1Button9))
-            {
-                IsGamepad = !IsGamepad;
-            }
-
 
             EffectVisuel();
             DebugUI();
+            SetPlayerRotatation(activeDebug) ;
+            if (player_Surface != Player_Surface.Grounded) return;
+            SetUpState(front, side);
+
         }
 
     }
 
+
+
+    public void SetPlayerRotatation(bool debug)
+    {
+        RaycastHit hit = new RaycastHit();
+        Physics.Raycast(transform.position, -Vector3.up, out hit, 10f);
+        Vector3 anglePlayer = Tool_SurfaceTopographie.GetTopo(hit.normal, transform, debug);
+        transform.rotation = Quaternion.Euler(anglePlayer.x, transform.rotation.eulerAngles.y, anglePlayer.z);
+    }
+
+
+
     // Check if Obstacle in the front direction
-    public bool DetectionCollision(float forward, float side)
+    public bool DetectionCollision(float forward, float side, bool debug)
     {
         bool IsDectect = false;
-        IsDectect = Physics.Raycast(transform.position - Vector3.up, (transform.forward * forward + transform.right * side), 1.1f);
+        if (debug) Debug.DrawRay(transform.position - 0.9f * Vector3.up, (transform.forward * forward + transform.right * side).normalized * 100, Color.red);
+        IsDectect = Physics.Raycast(transform.position - (0.8f * Vector3.up), (transform.forward * forward + transform.right * side), 1.1f);
         if (IsDectect) return IsDectect;
-        IsDectect = Physics.Raycast(transform.position + Vector3.up, transform.forward * forward + transform.right * side, 1.1f);
+        if (debug) Debug.DrawRay(transform.position + Vector3.up, (transform.forward * forward + transform.right * side).normalized * 100, Color.red);
+        IsDectect = Physics.Raycast(transform.position + transform.up, transform.forward * forward + transform.right * side, 1.1f);
+        if (debug) Debug.Log(IsDectect);
 
         return IsDectect;
     }
 
     public void SetUpState(float front, float side)
     {
-        if (player_MotorMouvement != Player_MotorMouvement.Slide)
+        if (front != 0 && side != 0)
         {
-            if (front == 0 && side == 0)
-            {
-                player_MotorMouvement = Player_MotorMouvement.Null;
-            }
-            else
-            {
-                player_MotorMouvement = Player_MotorMouvement.Run;
-            }
+            player_MotorMouvement = Player_MotorMouvement.Run;
         }
     }
 
     public void EffectVisuel()
     {
-        //  myCVEscript.FieldOfViewValue(rigidbodyPlayer.velocity.magnitude);
+        if (!cameraVisualEffect) return;
+        cameraVisualEffect.FieldOfViewValue(rigidbodyPlayer.velocity.magnitude);
     }
 
     public void DebugUI()
@@ -164,7 +156,8 @@ public class Player_BasicMouvement : Player_Settings
         }
         if (rigidbodyPlayer.velocity.magnitude < 1)
         {
-            // myCVEscript.resetSpeed = true;
+            if (!cameraVisualEffect) return;
+            cameraVisualEffect.resetSpeed = true;
         }
     }
 
@@ -188,5 +181,87 @@ public class Player_BasicMouvement : Player_Settings
     public void DeathReset()
     {
         StopPlayer(rigidbodyPlayer);
+    }
+
+
+
+    //--------- Get Reference -----------
+
+    private void GetCameraVisualEffect(bool debug)
+    {
+        cameraVisualEffect = GetComponent<CameraVisualEffect>();
+
+        if (cameraVisualEffect != null)
+        {
+            if (debug)
+            {
+                Debug.Log("Player Speed Find");
+            }
+        }
+        else
+        {
+            if (debug)
+            {
+                Debug.LogWarning("You need to put Player Speed on the object");
+            }
+        }
+    }
+
+    private void GetPlayerSpeed(bool debug)
+    {
+        playerSpeed = GetComponent<Player_Speed>();
+
+        if (playerSpeed != null)
+        {
+            if (debug)
+            {
+                Debug.Log("Player Speed Find");
+            }
+        }
+        else
+        {
+            if (debug)
+            {
+                Debug.LogWarning("You need to put Player Speed on the object");
+            }
+        }
+    }
+
+    private void GetPlayerInput(bool debug)
+    {
+        playerInput = GetComponent<Player_Input>();
+        if (playerInput != null)
+        {
+            if (debug)
+            {
+                Debug.Log("Player Input Find");
+            }
+        }
+        else
+        {
+            if (debug)
+            {
+                Debug.LogWarning("You need to put Player Input on the object");
+            }
+        }
+    }
+
+    private void GetPlayerRigidBody(bool debug)
+    {
+        rigidbodyPlayer = GetComponent<Rigidbody>();
+        if (rigidbodyPlayer != null)
+        {
+            if (debug)
+            {
+                Debug.Log("Rigidbody Find");
+            }
+        }
+        else
+        {
+            if (debug)
+            {
+                Debug.LogWarning("You need to put Player Rigidbody on the object");
+            }
+        }
     }
 }
