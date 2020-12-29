@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using FMODUnity;
+
+
 public class Player_Jump : Player_Settings
 {
     [Header("Jump Caracteristique")]

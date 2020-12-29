@@ -17,6 +17,7 @@ public class Player_BasicMouvement : Player_Settings
     [Header("Debug")]
     public bool activeDebug;
     private float tempsEcouleResetTemps;
+    private Vector3 SpherePos;
 
     [Header("Feedback")]
     public Text uiText;
@@ -45,12 +46,13 @@ public class Player_BasicMouvement : Player_Settings
         GetPlayerSpeed(activeDebug);
         GetPlayerInput(activeDebug);
         GetCameraVisualEffect(activeDebug);
+
     }
 
     void FixedUpdate()
     {
         if (player_Surface != Player_Surface.Grounded) return;
-
+            
         Vector3 inputDir = new Vector3(side, 0, front).normalized;
 
         if (!DetectionCollision(front, side, activeDebug))
@@ -60,7 +62,7 @@ public class Player_BasicMouvement : Player_Settings
 
             Vector3 mouvementPlayer = Vector3.ClampMagnitude(new Vector3(rigidbodyPlayer.velocity.x, rigidbodyPlayer.velocity.y, rigidbodyPlayer.velocity.z), playerSpeed.maximumSpeed);
             playerSpeed.currentSpeed = mouvementPlayer.magnitude;
-       
+
             rigidbodyPlayer.velocity = mouvementPlayer;
 
             if (inputDir.magnitude == 0 && mouvementPlayer.magnitude > 1)
@@ -98,7 +100,7 @@ public class Player_BasicMouvement : Player_Settings
 
             EffectVisuel();
             DebugUI();
-            SetPlayerRotatation(activeDebug) ;
+            SetPlayerRotatation(activeDebug);
             if (player_Surface != Player_Surface.Grounded) return;
             SetUpState(front, side);
 
@@ -106,13 +108,19 @@ public class Player_BasicMouvement : Player_Settings
 
     }
 
-
+    public void OnDrawGizmos()
+    {
+        Gizmos.DrawWireSphere(SpherePos, 3f);
+    }
 
     public void SetPlayerRotatation(bool debug)
     {
         RaycastHit hit = new RaycastHit();
-        Physics.Raycast(transform.position, -Vector3.up, out hit, 10f);
+        Physics.Raycast(transform.position + ((transform.forward * front + transform.right * side).normalized * playerSpeed.currentSpeed * Time.deltaTime), -Vector3.up, out hit, 100f);
+        Debug.DrawRay(transform.position + ((transform.forward * front + transform.right * side).normalized * playerSpeed.currentSpeed * Time.deltaTime), -Vector3.up * 100, Color.red);
+        SpherePos = hit.point;
         Vector3 anglePlayer = Tool_SurfaceTopographie.GetTopo(hit.normal, transform, debug);
+       // Debug.Log("Angle X = " + anglePlayer.x + " Angle Z = " + anglePlayer.z);
         transform.rotation = Quaternion.Euler(anglePlayer.x, transform.rotation.eulerAngles.y, anglePlayer.z);
     }
 
@@ -124,12 +132,14 @@ public class Player_BasicMouvement : Player_Settings
         bool IsDectect = false;
         if (debug) Debug.DrawRay(transform.position - 0.9f * Vector3.up, (transform.forward * forward + transform.right * side).normalized * 100, Color.red);
         IsDectect = Physics.Raycast(transform.position - (0.8f * Vector3.up), (transform.forward * forward + transform.right * side), 1.1f);
+
         if (IsDectect) return IsDectect;
         if (debug) Debug.DrawRay(transform.position + Vector3.up, (transform.forward * forward + transform.right * side).normalized * 100, Color.red);
+
         IsDectect = Physics.Raycast(transform.position + transform.up, transform.forward * forward + transform.right * side, 1.1f);
         if (debug) Debug.Log(IsDectect);
 
-        return IsDectect;
+        return false;
     }
 
     public void SetUpState(float front, float side)

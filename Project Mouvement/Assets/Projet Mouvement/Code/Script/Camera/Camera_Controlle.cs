@@ -73,10 +73,14 @@ public class Camera_Controlle : Player_Settings
 
 
             Vector3 playerRot = new Vector3(playerBody.transform.rotation.eulerAngles.x, currentRot.y, playerBody.transform.rotation.eulerAngles.z);
+           
             transform.rotation = Quaternion.Euler(currentRot);
             if (player_MotorMouvement != Player_MotorMouvement.WallRun)
             {
+                //playerBody.rotation = Quaternion.Euler(playerRot);
                 playerBody.rotation = Quaternion.Euler(playerRot);
+               // playerBody.Rotate(transform.up,addRot.y,Space.Self) ; 
+                
             }
         }
         transform.position = playerBody.position + offSetCurrent;
@@ -90,15 +94,15 @@ public class Camera_Controlle : Player_Settings
         {
             InclinationZCamera(speed, angle, true);
         }
-        if(debug) Debug.Log("current offSet is : " + offSetCurrent + " And offSet to move is : " + offSetToMove);
+        if (debug) Debug.Log("current offSet is : " + offSetCurrent + " And offSet to move is : " + offSetToMove);
 
-        if(Vector3.Distance(offSetCurrent, offSetToMove) > 0.01f)
+        if (Vector3.Distance(offSetCurrent, offSetToMove) > 0.01f)
         {
             LerpingToNewPos();
         }
         else
         {
-            if(player_MotorMouvement != Player_MotorMouvement.Slide)
+            if (player_MotorMouvement != Player_MotorMouvement.Slide)
             {
                 offSetToMove = new Vector3(0, 1, 0);
             }
@@ -121,7 +125,7 @@ public class Camera_Controlle : Player_Settings
             rot = new Vector3(Mathf.Clamp(rot.x, -90f, 90f), rot.y, rot.z);
         }
         if (debug) Debug.LogWarning("Angle Clamp = " + angle);
-     
+
         return rot;
     }
 
@@ -201,6 +205,6 @@ public class Camera_Controlle : Player_Settings
     public void LerpingToNewPos()
     {
         offSetCurrent = Vector3.Lerp(offSetCurrent, offSetToMove, tempsTransition);
-        
+
     }
 }
