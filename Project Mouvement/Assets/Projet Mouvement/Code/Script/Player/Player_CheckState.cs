@@ -9,11 +9,13 @@ public class Player_CheckState : Player_Settings
     static public bool CameraFlexion = false;
 
     private Camera_Controlle s_CC;
+    private Rigidbody rigidbody;
     public float tempsEcouleAir = 0;
     public float[] palierFlexion;
     private void Start()
     {
         s_CC = Camera.main.GetComponent<Camera_Controlle>();
+        rigidbody = GetComponent<Rigidbody>();
     }
     void Update()
     {
@@ -21,7 +23,7 @@ public class Player_CheckState : Player_Settings
         currentstate = player_Surface;
         if (Physics.Raycast(transform.position, -transform.up, 1.5f))
         {
-            
+            rigidbody.useGravity = false;
             SetGrounded();
             return;
         }
@@ -32,6 +34,7 @@ public class Player_CheckState : Player_Settings
         }
 
         player_Surface = Player_Surface.Air;
+        rigidbody.useGravity = true;
         wallSide = 0;
         if (player_Surface == Player_Surface.Air)
         {
@@ -45,7 +48,8 @@ public class Player_CheckState : Player_Settings
     private void SetGrounded()
     {
         player_Surface = Player_Surface.Grounded;
-       // CheckFlexionForce();
+
+        // CheckFlexionForce();
         player_MouvementUp = Player_MouvementUp.Null;
         if (player_MotorMouvement == Player_MotorMouvement.WallRun)
         {

@@ -10,18 +10,22 @@ public class Tool_SurfaceTopographie : MonoBehaviour
         // Get surfaceNormal 
 
         // Projetction Plan => Front 
-        Vector3 frontProjection = Vector3.ProjectOnPlane(Quaternion.Euler(0,posStart.eulerAngles.y,0) *Vector3.forward  , normalSurface);
+        Vector3 frontProjection = Vector3.ProjectOnPlane(Quaternion.Euler(0, PositifAngle(posStart.eulerAngles.y), 0) * Vector3.forward, normalSurface);
         // Projection Plan => Side;
-        Vector3 sideProjection = Vector3.ProjectOnPlane(Quaternion.Euler(0, posStart.eulerAngles.y, 0) * Vector3.right, normalSurface);
+        Vector3 sideProjection = Vector3.ProjectOnPlane(Quaternion.Euler(0, PositifAngle(posStart.eulerAngles.y), 0) * Vector3.right, normalSurface);
 
         // Search Angle Front
-        float frontAngle = Vector3.Angle(Quaternion.Euler(0, posStart.eulerAngles.y, 0) *Vector3.forward, frontProjection) ;
-        
-        // Search Angle Side
-        float sideAngle = Vector3.Angle(Quaternion.Euler(0, posStart.eulerAngles.y, 0) * Vector3.right, sideProjection);
+        float sideAngle = Vector3.SignedAngle(frontProjection, Quaternion.Euler(0, PositifAngle(posStart.eulerAngles.y), 0) * Vector3.forward, Vector3.right);
 
-        Vector3 angle = new Vector3(Mathf.Sign(ConversionAngle(posStart.eulerAngles.y)) * frontAngle, 0, Mathf.Sign(ConversionAngle(posStart.eulerAngles.y)) * sideAngle);
-     
+        // Search Angle Side
+        float frontAngle = Vector3.SignedAngle(sideProjection, Quaternion.Euler(0, PositifAngle(posStart.eulerAngles.y), 0) * Vector3.right, Vector3.forward);
+
+        float side = CheckVectorUp(sideProjection);
+        float front = CheckVectorUp(frontProjection);
+
+        Vector3 angler = (Quaternion.FromToRotation(posStart.up, normalSurface) * posStart.rotation).eulerAngles;
+        Vector3 angle = new Vector3(angler.x, 0, angler.z);
+
 
         if (ActivateDebug)
         {
@@ -29,13 +33,27 @@ public class Tool_SurfaceTopographie : MonoBehaviour
             //---------------- DEBUG ---------------------------
             Debug.DrawRay(posStart.position, sideProjection.normalized * 100, Color.green);
             Debug.DrawRay(posStart.position, frontProjection.normalized * 100, Color.magenta);
-            //----Debug.Log("Front = " + frontAngle.ToString("F1") + "// Side = " + sideAngle.ToString("F1"));
+            Debug.Log("Side = " + angle.x.ToString("F1") + "// Front = " + angle.z.ToString("F1"));
             // -------------- DEBUG ----------------------------
         }
 
         //Return Value
         return angle;
     }
+    public static float CheckVectorUp(Vector3 vectorGive)
+    {
+        if (vectorGive.y > 0)
+        {
+            return -1f;
+        }
+        if (vectorGive.y < 0 || vectorGive.y == 0)
+        {
+            return 1f;
+        }
+
+        return 1f;
+    }
+
     public static float ConversionAngle(float angle)
     {
 
@@ -46,6 +64,15 @@ public class Tool_SurfaceTopographie : MonoBehaviour
         if (angle < -180)
         {
             angle = angle + 360;
+        }
+
+        return angle;
+    }
+    private static float PositifAngle(float angle)
+    {
+        if (angle < 0)
+        {
+            angle = 360 - angle;
         }
 
         return angle;
