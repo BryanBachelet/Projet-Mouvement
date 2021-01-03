@@ -15,17 +15,23 @@ public class Player_Jump : Player_Settings
     [SerializeField]
     private bool activeDebug = false;
 
+
     [Header("Jump Caracteristique")]
-    public float jumpValue = 10;
-    public float gravityForce = 10;
-    public int jumpNumber;
+    public float heightJumpForce = 10f;
+    public float forwardJumpForce = 15f;
+
+    public float border_Bonus = 5f;
+    public int jumpNumber = 2;
     public int jumpCount;
 
+
+
+
+    public float gravityForce = 10;
     public float jumpTimerGravity = 1;
 
     public float jump_CountGravity;
 
-    public float border_Bonus = 15;
 
 
     public LayerMask surfaceObstacle;
@@ -41,6 +47,10 @@ public class Player_Jump : Player_Settings
     [EventRef]
     public string groundedSound;
 
+    //----- System Variable --- 
+    private bool callJump = false;
+    private float front = 0;
+    private float side = 0;
 
 
     //---------- Essential Component Reference ------
@@ -56,10 +66,7 @@ public class Player_Jump : Player_Settings
     // Start is called before the first frame update
     void Start()
     {
-        rigidbodyPlayer = GetComponent<Rigidbody>();
-        player_CheckState = GetComponent<Player_CheckState>();
-        player_WallRun = GetComponent<Player_WallRun>();
-        camera_Controlle = Camera.main.GetComponent<Camera_Controlle>();
+        InitReference();
     }
 
     private void InitReference()
@@ -69,7 +76,7 @@ public class Player_Jump : Player_Settings
         GetPlayerSpeed(activeDebug);
         GetPlayerWallRun(activeDebug);
         GetPlayerInput(activeDebug);
-        GetPlayerCheckState(activeDebug);   
+        GetPlayerCheckState(activeDebug);
     }
 
     // Update is called once per frame
@@ -79,10 +86,10 @@ public class Player_Jump : Player_Settings
         {
             CheckBorderSurface();
             //Event Input
-            if (isKeyPress)
+            if (callJump)
             {
                 Jump();
-                isKeyPress = false;
+                callJump = false;
             }
             // Gravity Fall
             if (player_MouvementUp == Player_MouvementUp.Jump || player_MouvementUp == Player_MouvementUp.Fall)
@@ -99,7 +106,6 @@ public class Player_Jump : Player_Settings
             }
             if (jump_CountGravity > jumpTimerGravity || player_MotorMouvement == Player_MotorMouvement.Slide)
             {
-
                 rigidbodyPlayer.AddForce(-Vector3.up * gravityForce, ForceMode.Acceleration);
             }
 
@@ -110,18 +116,16 @@ public class Player_Jump : Player_Settings
 
     public void Update()
     {
-
-
-        if (jumpCount < jumpNumber || player_Surface == Player_Surface.Wall)
+        //---------- Active Jump -----------------
+        if (ConditionChecker())
         {
-            if (player_MotorMouvement != Player_MotorMouvement.WallRun)
-            {
-                if (Input.GetKeyDown(KeyCode.JoystickButton0) || Input.GetKeyDown(KeyCode.Space))
-                {
-                    isKeyPress = true;
-                }
-            }
+            callJump = true;
+            ChangeState();
+            AddtoJumpCount();
+            if (activeDebug) Debug.Log("Jump!");
         }
+
+
 
         if (player_MouvementUp == Player_MouvementUp.Fall && player_Surface == Player_Surface.Wall && player_MotorMouvement != Player_MotorMouvement.WallRun)
         {
@@ -147,54 +151,85 @@ public class Player_Jump : Player_Settings
 
     }
 
+    private bool GetJumpInput()
+    {
+        bool keyState = false;
+        if (IsGamepad)
+        {
+            keyState = player_Input.GetInputPress(player_Input.JumpGp);
+        }
+        else
+        {
+            keyState = player_Input.GetInputPress(player_Input.JumpPc);
+        }
+        return keyState;
+    }
+
+    private Vector3 GetMouvementInput()
+    {
+        front = 0;
+        side = 0;
+
+        if (!IsGamepad)
+        {
+            front = player_Input.GetAxis(player_Input.forwardPc, player_Input.backPc);
+            side = player_Input.GetAxis(player_Input.leftPc, player_Input.rightPc);
+
+        }
+        else
+        {
+            front = player_Input.GetAxeValue("Vertical"); ;
+            side = player_Input.GetAxeValue("Horizontal");
+        }
+
+        Vector3 dir = Quaternion.Euler(0, transform.eulerAngles.y, 0) * new Vector3(side, 0, front).normalized;
+        return dir.normalized;
+    }
+
+    /// <summary>
+    /// Regroup all conditions to active the jump
+    /// </summary>
+    /// <returns></returns>
+    private bool ConditionChecker()
+    {
+        //Check Input
+        if (!GetJumpInput()) return false;
+        isKeyPress = GetJumpInput();
+
+        //Check Jump Number 
+        if (jumpCount > jumpNumber) return false;
+
+        return true;
+    }
+
+    private void ChangeState()
+    {
+        player_MouvementUp = Player_MouvementUp.Jump;
+    }
+
+    private void AddtoJumpCount()
+    {
+        jumpCount++;
+    }
+
+
+
 
     private void Jump()
     {
-        //myCameraControl.offSetToMove = new Vector3(0, 1, 0);
-        // Set Player Jump State 
-        player_MouvementUp = Player_MouvementUp.Jump;
-        // Add jump Count 
-        jumpCount++;
+        if (camera_Controlle != null) camera_Controlle.offSetToMove = new Vector3(0, 1, 0);
 
-        // Check If It's border Jump
-        if (JumpBoostBorder())
-        {
-            // Add Force to jump & Cancel gravity + Border Bonus
-            rigidbodyPlayer.AddForce(Vector3.up * (jumpValue + Mathf.Abs(rigidbodyPlayer.velocity.y) + border_Bonus), ForceMode.Impulse);
+        rigidbodyPlayer.AddForce(
+            Vector3.up * (heightJumpForce + Mathf.Abs(rigidbodyPlayer.velocity.y) + GetBorderForce()),
+            ForceMode.Impulse);
 
-        }
-        else
-        {
-            rigidbodyPlayer.AddForce(Vector3.up * (jumpValue + Mathf.Abs(rigidbodyPlayer.velocity.y)), ForceMode.Impulse);
-        }
-        if (jumpCount < jumpNumber || player_Surface == Player_Surface.Wall)
-        {
-            if (Input.GetKeyDown(KeyCode.JoystickButton0) || Input.GetKeyDown(KeyCode.Space))
-            {
-                isKeyPress = true;
-            }
-        }
-        if (player_Surface == Player_Surface.Grounded)
-        {
-            if (!checkGrounded)
-            {
-
-                checkGrounded = true;
-                RuntimeManager.PlayOneShot(groundedSound, transform.position);
-
-            }
-        }
-        else
-        {
-
-            jump_CountGravity = 0;
-
-        }
-        checkGrounded = false;
-
-
+        rigidbodyPlayer.AddForce(
+            GetMouvementInput() * (forwardJumpForce + GetBorderForce()),
+            ForceMode.Impulse);
     }
 
+
+    // Refaire Wall Run Jump
     public void Jump(Vector3 dir, float power)
     {
 
@@ -281,9 +316,39 @@ public class Player_Jump : Player_Settings
 
     }
 
+    private float GetBorderForce()
+    {
+        if (JumpBoostBorder()) return border_Bonus;
+
+        return 0;
+    }
 
 
-    //------------------- Get Reference --------------
+
+    #region Sound
+
+    private void ActiveGroundSound()
+    {
+        if (player_Surface == Player_Surface.Grounded)
+        {
+            if (!checkGrounded)
+            {
+
+                checkGrounded = true;
+                RuntimeManager.PlayOneShot(groundedSound, transform.position);
+
+            }
+        }
+        else
+        {
+
+            jump_CountGravity = 0;
+
+        }
+        checkGrounded = false;
+    }
+    #endregion
+
     #region Get Script Reference
 
     private void GetCameraControlle(bool debug)
