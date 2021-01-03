@@ -52,20 +52,24 @@ public class Player_BasicMouvement : Player_Settings
     void FixedUpdate()
     {
         if (player_Surface != Player_Surface.Grounded) return;
-            
+
         Vector3 inputDir = new Vector3(side, 0, front).normalized;
 
         if (!DetectionCollision(front, side, activeDebug))
         {
-            rigidbodyPlayer.AddForce(transform.forward * inputDir.z * playerSpeed.accelerationSpeed, forceMode);
-            rigidbodyPlayer.AddForce(transform.right * inputDir.x * playerSpeed.accelerationSpeed, forceMode);
+            
+            if (inputDir.magnitude != 0)
+            {
+                rigidbodyPlayer.AddForce(transform.forward * inputDir.z * playerSpeed.accelerationSpeed, forceMode);
+                rigidbodyPlayer.AddForce(transform.right * inputDir.x * playerSpeed.accelerationSpeed, forceMode);
 
-            Vector3 mouvementPlayer = Vector3.ClampMagnitude(new Vector3(rigidbodyPlayer.velocity.x, rigidbodyPlayer.velocity.y, rigidbodyPlayer.velocity.z), playerSpeed.maximumSpeed);
-            playerSpeed.currentSpeed = mouvementPlayer.magnitude;
+                Vector3 mouvementPlayer = Vector3.ClampMagnitude(new Vector3(rigidbodyPlayer.velocity.x, rigidbodyPlayer.velocity.y, rigidbodyPlayer.velocity.z), playerSpeed.maximumSpeed);
+                playerSpeed.currentSpeed = mouvementPlayer.magnitude;
 
-            rigidbodyPlayer.velocity = mouvementPlayer;
+                rigidbodyPlayer.velocity = mouvementPlayer;
+            }
 
-            if (inputDir.magnitude == 0 && mouvementPlayer.magnitude > 1)
+            if (inputDir.magnitude == 0 && rigidbodyPlayer.velocity.magnitude > 0)
             {
                 rigidbodyPlayer.velocity = rigidbodyPlayer.velocity.normalized * playerSpeed.currentSpeed;
                 playerSpeed.DeccelerationPlayerSpeed();
@@ -73,11 +77,7 @@ public class Player_BasicMouvement : Player_Settings
             SetUpState(front, side);
         }
 
-
-
-
     }
-
 
     private void Update()
     {
@@ -117,10 +117,9 @@ public class Player_BasicMouvement : Player_Settings
     {
         RaycastHit hit = new RaycastHit();
         Physics.Raycast(transform.position + ((transform.forward * front + transform.right * side).normalized * playerSpeed.currentSpeed * Time.deltaTime), -Vector3.up, out hit, 100f);
-        Debug.DrawRay(transform.position + ((transform.forward * front + transform.right * side).normalized * playerSpeed.currentSpeed * Time.deltaTime), -Vector3.up * 100, Color.red);
         SpherePos = hit.point;
         Vector3 anglePlayer = Tool_SurfaceTopographie.GetTopo(hit.normal, transform, debug);
-       // Debug.Log("Angle X = " + anglePlayer.x + " Angle Z = " + anglePlayer.z);
+
         transform.rotation = Quaternion.Euler(anglePlayer.x, transform.rotation.eulerAngles.y, anglePlayer.z);
     }
 
@@ -205,14 +204,14 @@ public class Player_BasicMouvement : Player_Settings
         {
             if (debug)
             {
-                Debug.Log("Player Speed Find");
+                Debug.Log("Camera Visual Effect Find");
             }
         }
         else
         {
             if (debug)
             {
-                Debug.LogWarning("You need to put Player Speed on the object");
+                Debug.LogWarning("You need to put Camera Visual Effect on the object");
             }
         }
     }

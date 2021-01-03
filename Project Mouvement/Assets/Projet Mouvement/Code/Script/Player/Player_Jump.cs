@@ -3,9 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using FMODUnity;
 
-
+[RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(Player_Speed))]
+[RequireComponent(typeof(Player_Input))]
 public class Player_Jump : Player_Settings
 {
+
+    //---- Variable -----
+
+    [Header("Debug")]
+    [SerializeField]
+    private bool activeDebug = false;
+
     [Header("Jump Caracteristique")]
     public float jumpValue = 10;
     public float gravityForce = 10;
@@ -33,18 +42,34 @@ public class Player_Jump : Player_Settings
     public string groundedSound;
 
 
-    private Rigidbody player_Rigid;
-    private Player_CheckState checkState;
+
+    //---------- Essential Component Reference ------
+    private Rigidbody rigidbodyPlayer;
+    private Player_Speed player_Speed;
+    private Player_Input player_Input;
+    private Player_CheckState player_CheckState;
+
+    //--------- Additionel Component Reference -------
     private Player_WallRun player_WallRun;
-    private Camera_Controlle myCameraControl;
+    private Camera_Controlle camera_Controlle;
 
     // Start is called before the first frame update
     void Start()
     {
-        player_Rigid = GetComponent<Rigidbody>();
-        checkState = GetComponent<Player_CheckState>();
+        rigidbodyPlayer = GetComponent<Rigidbody>();
+        player_CheckState = GetComponent<Player_CheckState>();
         player_WallRun = GetComponent<Player_WallRun>();
-        myCameraControl = Camera.main.GetComponent<Camera_Controlle>();
+        camera_Controlle = Camera.main.GetComponent<Camera_Controlle>();
+    }
+
+    private void InitReference()
+    {
+        GetCameraControlle(activeDebug);
+        GetPlayerRigidBody(activeDebug);
+        GetPlayerSpeed(activeDebug);
+        GetPlayerWallRun(activeDebug);
+        GetPlayerInput(activeDebug);
+        GetPlayerCheckState(activeDebug);   
     }
 
     // Update is called once per frame
@@ -64,7 +89,7 @@ public class Player_Jump : Player_Settings
             {
                 if (jump_CountGravity > jumpTimerGravity || player_MotorMouvement == Player_MotorMouvement.Slide)
                 {
-                    player_Rigid.AddForce(-Vector3.up * gravityForce, ForceMode.Acceleration);
+                    rigidbodyPlayer.AddForce(-Vector3.up * gravityForce, ForceMode.Acceleration);
                 }
                 else
                 {
@@ -75,7 +100,7 @@ public class Player_Jump : Player_Settings
             if (jump_CountGravity > jumpTimerGravity || player_MotorMouvement == Player_MotorMouvement.Slide)
             {
 
-                player_Rigid.AddForce(-Vector3.up * gravityForce, ForceMode.Acceleration);
+                rigidbodyPlayer.AddForce(-Vector3.up * gravityForce, ForceMode.Acceleration);
             }
 
 
@@ -105,7 +130,7 @@ public class Player_Jump : Player_Settings
         }
 
         // Change State Fall
-        if (player_Rigid.velocity.y <= -3f)
+        if (rigidbodyPlayer.velocity.y <= -3f)
         {
             player_MouvementUp = Player_MouvementUp.Fall;
 
@@ -119,7 +144,7 @@ public class Player_Jump : Player_Settings
             player_MouvementUp = Player_MouvementUp.Null;
         }
 
-        
+
     }
 
 
@@ -135,12 +160,12 @@ public class Player_Jump : Player_Settings
         if (JumpBoostBorder())
         {
             // Add Force to jump & Cancel gravity + Border Bonus
-            player_Rigid.AddForce(Vector3.up * (jumpValue + Mathf.Abs(player_Rigid.velocity.y) + border_Bonus), ForceMode.Impulse);
+            rigidbodyPlayer.AddForce(Vector3.up * (jumpValue + Mathf.Abs(rigidbodyPlayer.velocity.y) + border_Bonus), ForceMode.Impulse);
 
         }
         else
         {
-            player_Rigid.AddForce(Vector3.up * (jumpValue + Mathf.Abs(player_Rigid.velocity.y)), ForceMode.Impulse);
+            rigidbodyPlayer.AddForce(Vector3.up * (jumpValue + Mathf.Abs(rigidbodyPlayer.velocity.y)), ForceMode.Impulse);
         }
         if (jumpCount < jumpNumber || player_Surface == Player_Surface.Wall)
         {
@@ -172,7 +197,7 @@ public class Player_Jump : Player_Settings
 
     public void Jump(Vector3 dir, float power)
     {
-        
+
         // Set Player Jump State 
         player_MouvementUp = Player_MouvementUp.Jump;
         // Add jump Count 
@@ -181,11 +206,11 @@ public class Player_Jump : Player_Settings
         if (JumpBoostBorder())
         {
             // Add Force to jump & Cancel gravity + Border Bonus
-            player_Rigid.AddForce(dir.normalized * (power + Mathf.Abs(player_Rigid.velocity.y) + border_Bonus), ForceMode.Impulse);
+            rigidbodyPlayer.AddForce(dir.normalized * (power + Mathf.Abs(rigidbodyPlayer.velocity.y) + border_Bonus), ForceMode.Impulse);
         }
         else
         {
-            player_Rigid.AddForce(dir.normalized * (power + Mathf.Abs(player_Rigid.velocity.y)), ForceMode.Impulse);
+            rigidbodyPlayer.AddForce(dir.normalized * (power + Mathf.Abs(rigidbodyPlayer.velocity.y)), ForceMode.Impulse);
         }
         jump_CountGravity = 0;
         checkGrounded = false;
@@ -255,6 +280,130 @@ public class Player_Jump : Player_Settings
         }
 
     }
+
+
+
+    //------------------- Get Reference --------------
+    #region Get Script Reference
+
+    private void GetCameraControlle(bool debug)
+    {
+        camera_Controlle = GetComponent<Camera_Controlle>();
+
+        if (camera_Controlle != null)
+        {
+            if (debug)
+            {
+                Debug.Log("Camera Controlle Find");
+            }
+        }
+        else
+        {
+            if (debug)
+            {
+                Debug.LogWarning("You need to put Camera Controlle on the object");
+            }
+        }
+    }
+
+    private void GetPlayerWallRun(bool debug)
+    {
+        player_WallRun = GetComponent<Player_WallRun>();
+
+        if (player_WallRun != null)
+        {
+            if (debug)
+            {
+                Debug.Log("Player Wall Run Find");
+            }
+        }
+        else
+        {
+            if (debug)
+            {
+                Debug.LogWarning("You need to put Player Wall Run on the object");
+            }
+        }
+    }
+
+    private void GetPlayerSpeed(bool debug)
+    {
+        player_Speed = GetComponent<Player_Speed>();
+
+        if (player_Speed != null)
+        {
+            if (debug)
+            {
+                Debug.Log("Player Speed Find");
+            }
+        }
+        else
+        {
+            if (debug)
+            {
+                Debug.LogWarning("You need to put Player Speed on the object");
+            }
+        }
+    }
+
+    private void GetPlayerInput(bool debug)
+    {
+        player_Input = GetComponent<Player_Input>();
+        if (player_Input != null)
+        {
+            if (debug)
+            {
+                Debug.Log("Player Input Find");
+            }
+        }
+        else
+        {
+            if (debug)
+            {
+                Debug.LogWarning("You need to put Player Input on the object");
+            }
+        }
+    }
+
+    private void GetPlayerRigidBody(bool debug)
+    {
+        rigidbodyPlayer = GetComponent<Rigidbody>();
+        if (rigidbodyPlayer != null)
+        {
+            if (debug)
+            {
+                Debug.Log("Rigidbody Find");
+            }
+        }
+        else
+        {
+            if (debug)
+            {
+                Debug.LogWarning("You need to put Player Rigidbody on the object");
+            }
+        }
+    }
+
+    private void GetPlayerCheckState(bool debug)
+    {
+        player_CheckState = GetComponent<Player_CheckState>();
+        if (player_CheckState != null)
+        {
+            if (debug)
+            {
+                Debug.Log("Player Check State Find");
+            }
+        }
+        else
+        {
+            if (debug)
+            {
+                Debug.LogWarning("You need to Player Check Stateon the object");
+            }
+        }
+    }
+
+    #endregion
 
     private void OnDrawGizmos()
     {
