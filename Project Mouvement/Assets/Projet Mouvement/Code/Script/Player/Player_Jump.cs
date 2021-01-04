@@ -125,7 +125,7 @@ public class Player_Jump : Player_Settings
 
     private void Jump()
     {
-        //myCameraControl.offSetToMove = new Vector3(0, 1, 0);
+        myCameraControl.offSetToMove = new Vector3(0, 1, 0);
         // Set Player Jump State 
         player_MouvementUp = Player_MouvementUp.Jump;
         // Add jump Count 

@@ -60,6 +60,7 @@ public class Player_BasicMouvement : Player_Settings
             rigidbodyPlayer.AddForce(transform.forward * inputDir.z * playerSpeed.accelerationSpeed, forceMode);
             rigidbodyPlayer.AddForce(transform.right * inputDir.x * playerSpeed.accelerationSpeed, forceMode);
 
+
             Vector3 mouvementPlayer = Vector3.ClampMagnitude(new Vector3(rigidbodyPlayer.velocity.x, rigidbodyPlayer.velocity.y, rigidbodyPlayer.velocity.z), playerSpeed.maximumSpeed);
             playerSpeed.currentSpeed = mouvementPlayer.magnitude;
 
@@ -72,6 +73,7 @@ public class Player_BasicMouvement : Player_Settings
             }
             SetUpState(front, side);
         }
+        Debug.Log(rigidbodyPlayer.velocity.magnitude + " = ma vélocité");
 
 
 

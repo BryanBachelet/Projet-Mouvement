@@ -31,6 +31,8 @@ public class Player_Slide : Player_Settings
     public float volume;
 
     private Camera_Controlle s_CC;
+
+    public bool checkSlideInair = false;
     // Start is called before the first frame update
     void Start()
     {
@@ -172,7 +174,20 @@ public class Player_Slide : Player_Settings
                 {
                     tempsEcouleAccelerationSlide += Time.deltaTime;
                 }
-                player_Rigidbody.AddForce(transform.forward * accelerationOnSlide.Evaluate(tempsEcouleAccelerationSlide), ForceMode.Impulse);
+                if(player_Surface == Player_Surface.Grounded)
+                {
+                    player_Rigidbody.AddForce(transform.forward * accelerationOnSlide.Evaluate(tempsEcouleAccelerationSlide) * Time.deltaTime, ForceMode.Impulse);
+                }
+                else if (player_Surface == Player_Surface.Air)
+                {
+                    if(!checkSlideInair)
+                    {
+                        checkSlideInair = true;
+                        player_Rigidbody.AddForce(transform.forward * /*accelerationOnSlide.Evaluate(tempsEcouleAccelerationSlide)*/ 500 * Time.deltaTime, ForceMode.Impulse);
+                    }
+                }
+
+                Debug.Log("Je slide");
                 if (particulEffectAcceleration != null)
                 {
                     effectParticule.startSpeed = 410 * (accelerationOnSlide.Evaluate(tempsEcouleAccelerationSlide) / 10);
@@ -188,6 +203,7 @@ public class Player_Slide : Player_Settings
                 player_MotorMouvement = Player_MotorMouvement.Run;
                 s_CC.offSetToMove = new Vector3(0, 1f, 0);
                 s_CC.tempsTransition = 0.5f;
+                checkSlideInair = false;
                 if (particulEffectAcceleration != null)
                 {
                     particulEffectAcceleration.SetActive(false);
