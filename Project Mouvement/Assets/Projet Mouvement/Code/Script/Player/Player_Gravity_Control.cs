@@ -2,12 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Player_Gravity : MonoBehaviour
+public class Player_Gravity_Control : MonoBehaviour
 {
-    [Header("GravityParameter")]
-    public float playerGravity;
-
-
     // Start is called before the first frame update
     void Start()
     {

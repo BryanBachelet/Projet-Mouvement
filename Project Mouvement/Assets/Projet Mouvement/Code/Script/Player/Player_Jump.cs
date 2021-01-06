@@ -14,6 +14,7 @@ public class Player_Jump : Player_Settings
     [Header("Debug")]
     [SerializeField]
     private bool activeDebug = false;
+    public Player_MouvementUp player;
 
 
     [Header("Jump Caracteristique")]
@@ -24,13 +25,10 @@ public class Player_Jump : Player_Settings
     public int jumpNumber = 2;
     public int jumpCount;
 
+    [Header("Air Control")]
+    public float speedAirControl = 10f;
+    public float maxSpeedOfJump= 25f; 
 
-
-
-    public float gravityForce = 10;
-    public float jumpTimerGravity = 1;
-
-    public float jump_CountGravity;
 
 
 
@@ -51,7 +49,9 @@ public class Player_Jump : Player_Settings
     private bool callJump = false;
     private float front = 0;
     private float side = 0;
-
+    private bool isReset = false;
+    private bool inputReset;
+    private Vector3 airControlSpeed = new Vector3();
 
     //---------- Essential Component Reference ------
     private Rigidbody rigidbodyPlayer;
@@ -90,23 +90,23 @@ public class Player_Jump : Player_Settings
             {
                 Jump();
                 callJump = false;
+                isReset = false;
             }
-            // Gravity Fall
-            if (player_MouvementUp == Player_MouvementUp.Jump || player_MouvementUp == Player_MouvementUp.Fall)
+           
+            // Air Control -- Put in Fix Update
+            if (player_MouvementUp == Player_MouvementUp.Fall || player_MouvementUp == Player_MouvementUp.Jump)
             {
-                if (jump_CountGravity > jumpTimerGravity || player_MotorMouvement == Player_MotorMouvement.Slide)
-                {
-                    rigidbodyPlayer.AddForce(-Vector3.up * gravityForce, ForceMode.Acceleration);
-                }
-                else
-                {
-                    //CountDown Gravity
-                    jump_CountGravity += Time.fixedDeltaTime;
-                }
-            }
-            if (jump_CountGravity > jumpTimerGravity || player_MotorMouvement == Player_MotorMouvement.Slide)
-            {
-                rigidbodyPlayer.AddForce(-Vector3.up * gravityForce, ForceMode.Acceleration);
+                Vector3 inputDir = GetMouvementInput();
+
+                Vector3 speedDir =
+                    (transform.forward * (front * speedAirControl * Time.deltaTime)) +
+                    (transform.right * (side * speedAirControl * Time.deltaTime));
+
+             
+
+
+                rigidbodyPlayer.velocity = rigidbodyPlayer.velocity + speedDir;
+                rigidbodyPlayer.velocity = Vector3.ClampMagnitude(rigidbodyPlayer.velocity, player_Speed.maximumSpeed + maxSpeedOfJump);
             }
 
 
@@ -116,39 +116,61 @@ public class Player_Jump : Player_Settings
 
     public void Update()
     {
+
+        player = player_MouvementUp;
+
+        if (!GetJumpInput()) inputReset = true;
+
         //---------- Active Jump -----------------
         if (ConditionChecker())
         {
+            if (activeDebug) Debug.Log("Jump!");
             callJump = true;
             ChangeState();
+            player = player_MouvementUp;
             AddtoJumpCount();
-            if (activeDebug) Debug.Log("Jump!");
-        }
+            player_CheckState.DeactiveFrameGroundDectection();
+            inputReset = false;
 
+
+
+        }
 
 
         if (player_MouvementUp == Player_MouvementUp.Fall && player_Surface == Player_Surface.Wall && player_MotorMouvement != Player_MotorMouvement.WallRun)
         {
             player_WallRun.ActivateWallRun();
+            if (activeDebug)
+                Debug.Log("Enter in Wall Run");
             return;
         }
+       
 
-        // Change State Fall
-        if (rigidbodyPlayer.velocity.y <= -3f)
+       
+
+        // ----- Misc --------- 
+        // A mettre dans un autre script 
+        if (rigidbodyPlayer.velocity.y < -3)
         {
             player_MouvementUp = Player_MouvementUp.Fall;
-
         }
 
-        //Reset Mouvement Up State & Jump
-        if (player_MouvementUp == Player_MouvementUp.Null)
+        if (player_Surface == Player_Surface.Grounded && player_MouvementUp != Player_MouvementUp.Jump && !isReset)
         {
-            jumpCount = 0;
-            jump_CountGravity = 0;
-            player_MouvementUp = Player_MouvementUp.Null;
+            isReset = ResetJumpStat();
+            if (activeDebug)
+                Debug.Log("Jump has been reset");
         }
 
 
+
+
+    }
+
+    private bool ResetJumpStat()
+    {
+        RestJumpCount();
+        return true;
     }
 
     private bool GetJumpInput()
@@ -183,6 +205,7 @@ public class Player_Jump : Player_Settings
         }
 
         Vector3 dir = Quaternion.Euler(0, transform.eulerAngles.y, 0) * new Vector3(side, 0, front).normalized;
+
         return dir.normalized;
     }
 
@@ -193,11 +216,16 @@ public class Player_Jump : Player_Settings
     private bool ConditionChecker()
     {
         //Check Input
-        if (!GetJumpInput()) return false;
+        if (!GetJumpInput() || !inputReset)
+            return false;
+
         isKeyPress = GetJumpInput();
+
 
         //Check Jump Number 
         if (jumpCount > jumpNumber) return false;
+
+        if (player_MouvementUp == Player_MouvementUp.Jump) return false;
 
         return true;
     }
@@ -214,7 +242,9 @@ public class Player_Jump : Player_Settings
 
 
 
-
+    /// <summary>
+    /// Add the power of jum to the avatar
+    /// </summary>
     private void Jump()
     {
         if (camera_Controlle != null) camera_Controlle.offSetToMove = new Vector3(0, 1, 0);
@@ -232,23 +262,20 @@ public class Player_Jump : Player_Settings
     // Refaire Wall Run Jump
     public void Jump(Vector3 dir, float power)
     {
-
         // Set Player Jump State 
-        player_MouvementUp = Player_MouvementUp.Jump;
+        ChangeState();
+
         // Add jump Count 
-        jumpCount++;
-        // Check If It's border Jump
-        if (JumpBoostBorder())
-        {
-            // Add Force to jump & Cancel gravity + Border Bonus
-            rigidbodyPlayer.AddForce(dir.normalized * (power + Mathf.Abs(rigidbodyPlayer.velocity.y) + border_Bonus), ForceMode.Impulse);
-        }
-        else
-        {
-            rigidbodyPlayer.AddForce(dir.normalized * (power + Mathf.Abs(rigidbodyPlayer.velocity.y)), ForceMode.Impulse);
-        }
-        jump_CountGravity = 0;
-        checkGrounded = false;
+        AddtoJumpCount();
+
+        rigidbodyPlayer.AddForce(
+            Vector3.up * (heightJumpForce + Mathf.Abs(rigidbodyPlayer.velocity.y) + GetBorderForce()),
+            ForceMode.Impulse);
+
+        rigidbodyPlayer.AddForce(
+            dir.normalized * (forwardJumpForce + GetBorderForce()),
+            ForceMode.Impulse);
+
     }
 
     public void RestJumpCount()
@@ -264,14 +291,16 @@ public class Player_Jump : Player_Settings
         // Does the ray intersect any objects excluding the player layer
         if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.down), out hit, 2, surfaceObstacle))
         {
-            Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.down) * hit.distance, Color.yellow);
+            if (activeDebug)
+                Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.down) * hit.distance, Color.yellow);
             surfaceHit = hit.collider;
 
             //Debug.Log("" + hit.collider.name);
         }
         else
         {
-            Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.down) * 1000, Color.red);
+            if (activeDebug)
+                Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.down) * 1000, Color.red);
             surfaceHit = null;
         }
 
@@ -342,7 +371,6 @@ public class Player_Jump : Player_Settings
         else
         {
 
-            jump_CountGravity = 0;
 
         }
         checkGrounded = false;

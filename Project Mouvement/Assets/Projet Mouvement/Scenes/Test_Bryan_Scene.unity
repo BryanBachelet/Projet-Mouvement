@@ -941,6 +941,18 @@ PrefabInstance:
       propertyPath: jumpNumber
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 1787413772, guid: 497339ffb7e0e834ca63d37ce0bb4c64, type: 3}
+      propertyPath: heightJumpForce
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 1787413772, guid: 497339ffb7e0e834ca63d37ce0bb4c64, type: 3}
+      propertyPath: activeDebug
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1787413772, guid: 497339ffb7e0e834ca63d37ce0bb4c64, type: 3}
+      propertyPath: player
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 5522287213397795636, guid: 497339ffb7e0e834ca63d37ce0bb4c64,
         type: 3}
       propertyPath: accelerationSpeed
@@ -1119,7 +1131,7 @@ PrefabInstance:
     - target: {fileID: 9173039518247225924, guid: 497339ffb7e0e834ca63d37ce0bb4c64,
         type: 3}
       propertyPath: activeDebug
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9173039518247225925, guid: 497339ffb7e0e834ca63d37ce0bb4c64,
         type: 3}
@@ -1128,7 +1140,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 5522287213397795636, guid: 497339ffb7e0e834ca63d37ce0bb4c64, type: 3}
-    - {fileID: 1787413772, guid: 497339ffb7e0e834ca63d37ce0bb4c64, type: 3}
     - {fileID: 7458206074360347893, guid: 497339ffb7e0e834ca63d37ce0bb4c64, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 497339ffb7e0e834ca63d37ce0bb4c64, type: 3}
 --- !u!114 &1428015727 stripped

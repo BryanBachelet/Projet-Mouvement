@@ -51,13 +51,13 @@ public class Player_BasicMouvement : Player_Settings
 
     void FixedUpdate()
     {
-        if (player_Surface != Player_Surface.Grounded) return;
+        if (player_Surface != Player_Surface.Grounded || player_MouvementUp == Player_MouvementUp.Jump) return;
 
         Vector3 inputDir = new Vector3(side, 0, front).normalized;
 
         if (!DetectionCollision(front, side, activeDebug))
         {
-            
+
             if (inputDir.magnitude != 0)
             {
                 rigidbodyPlayer.AddForce(transform.forward * inputDir.z * playerSpeed.accelerationSpeed, forceMode);
@@ -100,10 +100,10 @@ public class Player_BasicMouvement : Player_Settings
 
             EffectVisuel();
             DebugUI();
+            if (player_Surface != Player_Surface.Grounded || player_MouvementUp == Player_MouvementUp.Jump) return;
             SetPlayerRotatation(activeDebug);
-            if (player_Surface != Player_Surface.Grounded) return;
             SetUpState(front, side);
-
+            
         }
 
     }
@@ -116,7 +116,7 @@ public class Player_BasicMouvement : Player_Settings
     public void SetPlayerRotatation(bool debug)
     {
         RaycastHit hit = new RaycastHit();
-        Physics.Raycast(transform.position + ((transform.forward * front + transform.right * side).normalized * playerSpeed.currentSpeed * Time.deltaTime), -Vector3.up, out hit, 100f);
+        Physics.Raycast(transform.position + ((transform.forward * front + transform.right * side).normalized * playerSpeed.currentSpeed * Time.deltaTime), -Vector3.up, out hit, 3f);
         SpherePos = hit.point;
         Vector3 anglePlayer = Tool_SurfaceTopographie.GetTopo(hit.normal, transform, debug);
 

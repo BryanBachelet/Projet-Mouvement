@@ -4,29 +4,45 @@ using UnityEngine;
 
 public class Player_CheckState : Player_Settings
 {
+    //----- Variable -----------
     public float wallSide;
     public Player_Surface currentstate;
-    static public bool CameraFlexion = false;
-
-    private Camera_Controlle s_CC;
-    private Rigidbody rigidbody;
     public float tempsEcouleAir = 0;
     public float[] palierFlexion;
+
+    static public bool CameraFlexion = false;
+
+    private int frameDeactivate = 5;
+    private int frameCount;
+    private bool activeGroundDectection = true;
+
+    //------ Reference-------- 
+    private Camera_Controlle s_CC;
+    private Rigidbody rigidbody;
+
+
     private void Start()
     {
+        //Ranger les recherche de référence 
         s_CC = Camera.main.GetComponent<Camera_Controlle>();
         rigidbody = GetComponent<Rigidbody>();
     }
     void Update()
     {
-        //Check if the player is on the ground
+        Debug.DrawRay(transform.position, -transform.up * 1.01f, Color.red);
         currentstate = player_Surface;
-        if (Physics.Raycast(transform.position, -transform.up, 1.5f))
+
+
+        
+        //Check if the player is on the ground
+
+        if (Physics.Raycast(transform.position, -transform.up, 1.3f) && activeGroundDectection)
         {
             rigidbody.useGravity = false;
             SetGrounded();
             return;
         }
+
         if (Physics.Raycast(transform.position, transform.right, 3) || Physics.Raycast(transform.position, -transform.right, 3))
         {
             GetSide();
@@ -34,16 +50,35 @@ public class Player_CheckState : Player_Settings
         }
 
         player_Surface = Player_Surface.Air;
+
         rigidbody.useGravity = true;
         wallSide = 0;
         if (player_Surface == Player_Surface.Air)
         {
+            transform.rotation = Quaternion.Euler(0, transform.rotation.eulerAngles.y, 0);
             tempsEcouleAir += Time.deltaTime;
         }
-        Debug.DrawRay(transform.position, -transform.right * 1.25f, Color.green);
+
+        if (!activeGroundDectection)
+        {
+            if (frameCount > frameDeactivate)
+            {
+                activeGroundDectection = true;
+            }
+            else
+            {
+                frameCount++;
+            }
+        }
+
 
     }
 
+    public void DeactiveFrameGroundDectection()
+    {
+        activeGroundDectection = false;
+        frameCount = 0;
+    }
 
     private void SetGrounded()
     {
