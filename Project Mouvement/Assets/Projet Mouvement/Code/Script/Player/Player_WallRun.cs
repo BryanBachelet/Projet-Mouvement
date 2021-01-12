@@ -2,33 +2,72 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+[RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(Player_Speed))]
+[RequireComponent(typeof(Player_Input))]
 public class Player_WallRun : Player_Settings
 {
     [Header("Input Setting")]
     public KeyCode Forward = KeyCode.Z;
     public KeyCode Back = KeyCode.S;
 
+    //----- Variable -------------
 
-    //---Variable---
+    [Header("Debug")]
+    public bool activeDebug = false;
 
+
+    //--- Systeme Variable---
+    
     private float enterSpeed;
+    private float wallRunSide;
+    private GameObject wallRunning;
 
-    //---- Components ----
-    private Player_Jump playerJump;
-    private Rigidbody playerRigid;
-    private Player_CheckState checkState;
+    //---- Essentiat Components Reference ----
+    private Rigidbody rigidbodyPlayer;
+    private Player_Speed player_Speed;
+    private Player_Input player_Input;
+    private Player_Jump player_Jump;
+    private Player_CheckState player_CheckState;
 
 
     private void Start()
     {
-        GetPlayerJump();
-        GetPlayerRigidBody();
-        GetPlayerCheckWall();
+        InitReference();
+    }
+
+    private void InitReference()
+    {
+        GetPlayerSpeed(activeDebug);
+        GetPlayerInput(activeDebug);
+        GetPlayerJump(activeDebug);
+        GetPlayerRigidBody(activeDebug);
+        GetPlayerCheckWall(activeDebug);
     }
 
 
     private void Update()
     {
+        // Check if Wall Run est activé
+        // Check s'il y a un mur 
+        // Check les états du player
+        if(player_Surface == Player_Surface.Wall && player_MouvementUp == Player_MouvementUp.Fall && player_MotorMouvement != Player_MotorMouvement.WallRun)
+        {
+            if (activeDebug) Debug.Log("Enter Wall Ride");
+            // Check si l'angle du mur est à 90° degré
+            RaycastHit hit = new RaycastHit();
+            Physics.Raycast(transform.position, transform.right * player_CheckState.wallSide, out hit, 10f);
+            float angle = Vector3.Angle(Vector3.up, hit.normal);
+            if (activeDebug) Debug.Log("Angle = " + angle);
+            if (angle == 90)
+            { 
+                //Récupérer le côté du Wall Run
+                wallRunSide = player_CheckState.wallSide;
+            }
+        }
+
+
         if (player_MotorMouvement == Player_MotorMouvement.WallRun)
         {
             //Quit Wall Run Fonction
@@ -43,7 +82,7 @@ public class Player_WallRun : Player_Settings
     //Quit Wall Run 
     private void CheckWallSide()
     {
-        if (checkState.wallSide == 0)
+        if (player_CheckState.wallSide == 0)
         {
             DeactiveWallRun();
         }
@@ -55,7 +94,7 @@ public class Player_WallRun : Player_Settings
     {
         if (Input.GetKeyDown(KeyCode.JoystickButton0) || Input.GetKeyDown(KeyCode.Space))
         {
-            playerJump.Jump(Vector3.up + Vector3.right * 3 + Vector3.forward * 2, 20f);
+            player_Jump.Jump(Vector3.up + Vector3.right * 3 + Vector3.forward * 2, 20f);
             DeactiveWallRun();
         }
     }
@@ -75,13 +114,13 @@ public class Player_WallRun : Player_Settings
         SetGravity(false);
         GetCurrentHorizontalSpeed();
         SetNewVelocitySpeed();
-        playerJump.RestJumpCount();
+        player_Jump.RestJumpCount(activeDebug);
     }
 
 
     private void GetCurrentHorizontalSpeed()
     {
-        enterSpeed = new Vector3(playerRigid.velocity.x, 0, playerRigid.velocity.z).magnitude;
+        enterSpeed = new Vector3(rigidbodyPlayer.velocity.x, 0, rigidbodyPlayer.velocity.z).magnitude;
         Debug.Log("Enter horizontal speed = " + enterSpeed.ToString("F0"));
     }
 
@@ -90,8 +129,8 @@ public class Player_WallRun : Player_Settings
     private Vector3 GetWallDirection()
     {
         RaycastHit hit;
-        Physics.Raycast(transform.position, transform.right * checkState.wallSide, out hit, 10f);
-        Vector3 wallDir = Quaternion.Euler(0, 90 * checkState.wallSide, 0) * hit.normal;
+        Physics.Raycast(transform.position, transform.right * player_CheckState.wallSide, out hit, 10f);
+        Vector3 wallDir = Quaternion.Euler(0, 90 * player_CheckState.wallSide, 0) * hit.normal;
         Debug.Log("Dir parallèle =" + wallDir + " Normal =" + hit.normal);
         return wallDir;
     }
@@ -99,21 +138,21 @@ public class Player_WallRun : Player_Settings
     private void SetNewVelocitySpeed()
     {
         Vector3 wallDir = GetWallDirection();
-        playerRigid.angularVelocity = Vector3.zero;
-        playerRigid.velocity = Vector3.zero;
-        playerRigid.velocity = wallDir.normalized * enterSpeed;
-        Debug.Log("Velocity =" + playerRigid.velocity);
+        rigidbodyPlayer.angularVelocity = Vector3.zero;
+        rigidbodyPlayer.velocity = Vector3.zero;
+        rigidbodyPlayer.velocity = wallDir.normalized * enterSpeed;
+        Debug.Log("Velocity =" + rigidbodyPlayer.velocity);
     }
 
     private void SetNewVelocitySpeed(float speed, float speedMin)
     {
-        if (speedMin > playerRigid.velocity.magnitude)
+        if (speedMin > rigidbodyPlayer.velocity.magnitude)
         {
             Vector3 wallDir = GetWallDirection();
-            playerRigid.angularVelocity = Vector3.zero;
-            playerRigid.velocity = Vector3.zero;
-            playerRigid.velocity = wallDir.normalized * speed;
-            Debug.Log("Velocity =" + playerRigid.velocity);
+            rigidbodyPlayer.angularVelocity = Vector3.zero;
+            rigidbodyPlayer.velocity = Vector3.zero;
+            rigidbodyPlayer.velocity = wallDir.normalized * speed;
+            Debug.Log("Velocity =" + rigidbodyPlayer.velocity);
         }
     }
 
@@ -121,49 +160,108 @@ public class Player_WallRun : Player_Settings
 
     private void SetGravity(bool isGravity)
     {
-        playerRigid.useGravity = isGravity;
-        Debug.Log("Gravity = " + playerRigid.useGravity);
+        rigidbodyPlayer.useGravity = isGravity;
+        Debug.Log("Gravity = " + rigidbodyPlayer.useGravity);
     }
 
-    private void GetPlayerCheckWall()
+    #region Get Reference
+
+    private void GetPlayerCheckWall(bool debug)
     {
-        checkState = GetComponent<Player_CheckState>();
-        if (checkState != null)
+        player_CheckState = GetComponent<Player_CheckState>();
+        if (player_CheckState != null)
         {
-            //----Debug.Log("Check State");
+            if (debug)
+            {
+                Debug.Log("Check State is Find");
+            }
         }
         else
         {
-            Debug.LogWarning("You need to put Player_CheckState on the object");
+            if (debug)
+            {
+                Debug.LogWarning("You need to put Player_CheckState on the object");
+            }
         }
     }
 
-    private void GetPlayerRigidBody()
+    private void GetPlayerRigidBody(bool debug)
     {
-        playerRigid = GetComponent<Rigidbody>();
-        if (playerRigid != null)
+        rigidbodyPlayer = GetComponent<Rigidbody>();
+        if (rigidbodyPlayer != null)
         {
-            //----Debug.Log("Rigidbody Find");
+            if (debug)
+            {
+                Debug.Log("Rigidbody finds");
+            }
         }
         else
         {
-            Debug.LogWarning("You need to put Player Rigidbody on the object");
+            if (debug)
+            {
+                Debug.LogWarning("You need to put Rigidbody on the object");
+            }
         }
     }
 
-    private void GetPlayerJump()
+    private void GetPlayerSpeed(bool debug)
     {
-        playerJump = GetComponent<Player_Jump>();
-        if (playerJump != null)
+        player_Speed = GetComponent<Player_Speed>();
+        if (player_Speed != null)
         {
-            //----Debug.Log("Player_Jump Find");
+            if (debug)
+            {
+                Debug.Log("Player Speed finds");
+            }
         }
         else
         {
-            Debug.LogWarning("You need to put Player_Jump on the object");
+            if (debug)
+            {
+                Debug.LogWarning("You need to put Player_Speed on the object");
+            }
         }
     }
 
+    private void GetPlayerInput(bool debug)
+    {
+        player_Input = GetComponent<Player_Input>();
+        if (player_Input != null)
+        {
+            if (debug)
+            {
+                Debug.Log("Player Input finds");
+            }
+        }
+        else
+        {
+            if (debug)
+            {
+                Debug.LogWarning("You need to put Player_Input on the object");
+            }
+        }
+    }
+
+    private void GetPlayerJump(bool debug)
+    {
+        player_Jump = GetComponent<Player_Jump>();
+        if (player_Jump != null)
+        {
+            if (debug)
+            {
+                Debug.Log("Player Jump finds");
+            }
+        }
+        else
+        {
+            if (debug)
+            {
+                Debug.LogWarning("You need to put Player Jump on the object");
+            }
+        }
+    }
+
+    #endregion
 
 
     //----------- TOOLS ----------

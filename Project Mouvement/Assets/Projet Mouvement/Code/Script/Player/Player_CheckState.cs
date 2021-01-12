@@ -18,14 +18,14 @@ public class Player_CheckState : Player_Settings
 
     //------ Reference-------- 
     private Camera_Controlle s_CC;
-    private Rigidbody rigidbody;
+    private Rigidbody player_rigidbody;
 
 
     private void Start()
     {
         //Ranger les recherche de référence 
         s_CC = Camera.main.GetComponent<Camera_Controlle>();
-        rigidbody = GetComponent<Rigidbody>();
+        player_rigidbody = GetComponent<Rigidbody>();
     }
     void Update()
     {
@@ -38,7 +38,7 @@ public class Player_CheckState : Player_Settings
 
         if (Physics.Raycast(transform.position, -transform.up, 1.3f) && activeGroundDectection)
         {
-            rigidbody.useGravity = false;
+            player_rigidbody.useGravity = false;
             SetGrounded();
             return;
         }
@@ -51,7 +51,7 @@ public class Player_CheckState : Player_Settings
 
         player_Surface = Player_Surface.Air;
 
-        rigidbody.useGravity = true;
+        player_rigidbody.useGravity = true;
         wallSide = 0;
         if (player_Surface == Player_Surface.Air)
         {

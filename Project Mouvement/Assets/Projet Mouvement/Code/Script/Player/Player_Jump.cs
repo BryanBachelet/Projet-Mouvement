@@ -27,31 +27,25 @@ public class Player_Jump : Player_Settings
 
     [Header("Air Control")]
     public float speedAirControl = 10f;
-    public float maxSpeedOfJump= 25f; 
+    public float maxSpeedOfJump = 25f;
 
-
-
-
-    public LayerMask surfaceObstacle;
-    Collider surfaceHit;
-    public Vector3 offsetCollider;
+    [Header("Jump Boost")]
     public float offsetJump = 3;
+    public LayerMask surfaceObstacle;
 
-
-    private bool isKeyPress;
-
-    public bool checkGrounded = false;
-
-    [EventRef]
-    public string groundedSound;
 
     //----- System Variable --- 
     private bool callJump = false;
     private float front = 0;
     private float side = 0;
+
     private bool isReset = false;
     private bool inputReset;
+    private bool isKeyPress;
+
     private Vector3 airControlSpeed = new Vector3();
+    // ---- JumpBoost ----
+    private Collider surfaceHit;
 
     //---------- Essential Component Reference ------
     private Rigidbody rigidbodyPlayer;
@@ -92,7 +86,7 @@ public class Player_Jump : Player_Settings
                 callJump = false;
                 isReset = false;
             }
-           
+
             // Air Control -- Put in Fix Update
             if (player_MouvementUp == Player_MouvementUp.Fall || player_MouvementUp == Player_MouvementUp.Jump)
             {
@@ -101,9 +95,6 @@ public class Player_Jump : Player_Settings
                 Vector3 speedDir =
                     (transform.forward * (front * speedAirControl * Time.deltaTime)) +
                     (transform.right * (side * speedAirControl * Time.deltaTime));
-
-             
-
 
                 rigidbodyPlayer.velocity = rigidbodyPlayer.velocity + speedDir;
                 rigidbodyPlayer.velocity = Vector3.ClampMagnitude(rigidbodyPlayer.velocity, player_Speed.maximumSpeed + maxSpeedOfJump);
@@ -135,26 +126,7 @@ public class Player_Jump : Player_Settings
 
 
         }
-
-
-        if (player_MouvementUp == Player_MouvementUp.Fall && player_Surface == Player_Surface.Wall && player_MotorMouvement != Player_MotorMouvement.WallRun)
-        {
-            player_WallRun.ActivateWallRun();
-            if (activeDebug)
-                Debug.Log("Enter in Wall Run");
-            return;
-        }
-       
-
-       
-
-        // ----- Misc --------- 
-        // A mettre dans un autre script 
-        if (rigidbodyPlayer.velocity.y < -3)
-        {
-            player_MouvementUp = Player_MouvementUp.Fall;
-        }
-
+        
         if (player_Surface == Player_Surface.Grounded && player_MouvementUp != Player_MouvementUp.Jump && !isReset)
         {
             isReset = ResetJumpStat();
@@ -169,7 +141,7 @@ public class Player_Jump : Player_Settings
 
     private bool ResetJumpStat()
     {
-        RestJumpCount();
+        RestJumpCount(activeDebug);
         return true;
     }
 
@@ -278,9 +250,10 @@ public class Player_Jump : Player_Settings
 
     }
 
-    public void RestJumpCount()
+    public void RestJumpCount(bool debug)
     {
         jumpCount = 0;
+        if (debug) 
         Debug.Log("Jump Count Reset !");
     }
 
@@ -351,31 +324,6 @@ public class Player_Jump : Player_Settings
 
         return 0;
     }
-
-
-
-    #region Sound
-
-    private void ActiveGroundSound()
-    {
-        if (player_Surface == Player_Surface.Grounded)
-        {
-            if (!checkGrounded)
-            {
-
-                checkGrounded = true;
-                RuntimeManager.PlayOneShot(groundedSound, transform.position);
-
-            }
-        }
-        else
-        {
-
-
-        }
-        checkGrounded = false;
-    }
-    #endregion
 
     #region Get Script Reference
 
