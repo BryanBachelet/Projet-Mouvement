@@ -5,17 +5,25 @@ using UnityEngine;
 public class Player_CheckState : Player_Settings
 {
     //----- Variable -----------
+    [Header("State")]
+    public Player_Surface player_SurfaceDebug;
+    public Player_MotorMouvement Player_MotorMouvementDebug;
+    public Player_MouvementUp Player_MouvementUpDebug;
+
     public float wallSide;
-    public Player_Surface currentstate;
     public float tempsEcouleAir = 0;
     public float[] palierFlexion;
+    public bool activeDebug = false;
 
     static public bool CameraFlexion = false;
+
+    [HideInInspector]
+    public RaycastHit hit;
 
     private int frameDeactivate = 5;
     private int frameCount;
     private bool activeGroundDectection = true;
-
+    private float wallDectectDist = 3f;
     //------ Reference-------- 
     private Camera_Controlle s_CC;
     private Rigidbody player_rigidbody;
@@ -30,30 +38,35 @@ public class Player_CheckState : Player_Settings
     void Update()
     {
         Debug.DrawRay(transform.position, -transform.up * 1.01f, Color.red);
-        currentstate = player_Surface;
+        player_SurfaceDebug = Player_State.player_Surface;
+        Player_MotorMouvementDebug = player_MotorMouvement;
+        Player_MouvementUpDebug = player_MouvementUp;
 
 
-        
+
         //Check if the player is on the ground
 
         if (Physics.Raycast(transform.position, -transform.up, 1.3f) && activeGroundDectection)
         {
             player_rigidbody.useGravity = false;
             SetGrounded();
+
             return;
         }
 
-        if (Physics.Raycast(transform.position, transform.right, 3) || Physics.Raycast(transform.position, -transform.right, 3))
+        if (Physics.Raycast(transform.position, transform.right, wallDectectDist) || Physics.Raycast(transform.position, -transform.right, wallDectectDist))
         {
-            GetSide();
+            GetSide(activeDebug);
+            if (player_MotorMouvement != Player_MotorMouvement.WallRun)
+            { player_rigidbody.useGravity = true; }
             return;
         }
 
-        player_Surface = Player_Surface.Air;
+        Player_State.player_Surface = Player_Surface.Air;
 
         player_rigidbody.useGravity = true;
         wallSide = 0;
-        if (player_Surface == Player_Surface.Air)
+        if (Player_State.player_Surface == Player_Surface.Air)
         {
             transform.rotation = Quaternion.Euler(0, transform.rotation.eulerAngles.y, 0);
             tempsEcouleAir += Time.deltaTime;
@@ -82,7 +95,7 @@ public class Player_CheckState : Player_Settings
 
     private void SetGrounded()
     {
-        player_Surface = Player_Surface.Grounded;
+        Player_State.player_Surface = Player_Surface.Grounded;
 
         // CheckFlexionForce();
         player_MouvementUp = Player_MouvementUp.Null;
@@ -93,23 +106,24 @@ public class Player_CheckState : Player_Settings
         wallSide = 0;
     }
 
-    private void GetSide()
+    private void GetSide(bool debug)
     {
         string directionString = "";
-        if (Physics.Raycast(transform.position, transform.right, 3))
+        if (Physics.Raycast(transform.position, transform.right, wallDectectDist))
         {
             wallSide = 1;
             directionString = "Right";
-
         }
-        if (Physics.Raycast(transform.position, -transform.right, 3))
+        if (Physics.Raycast(transform.position, -transform.right, wallDectectDist))
         {
             wallSide = -1;
             directionString = "Left";
-
         }
-        player_Surface = Player_Surface.Wall;
-        Debug.Log("Close to " + directionString + " Wall ");
+
+        Physics.Raycast(transform.position, wallSide * transform.right, out hit, wallDectectDist);
+        Player_State.player_Surface = Player_Surface.Wall;
+        if (debug)
+            Debug.Log("Close to " + directionString + " Wall ");
 
     }
 

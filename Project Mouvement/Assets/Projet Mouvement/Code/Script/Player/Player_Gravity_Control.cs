@@ -44,7 +44,7 @@ public class Player_Gravity_Control : Player_Settings
 
         // Check if le player est dans les air 
         // Check if la velocité y du player est supérieur à une valeur (Variable) 
-        if (player_Surface == Player_Surface.Air && player_rigidbody.velocity.y < fallValueMin)
+        if (player_Surface != Player_Surface.Grounded && player_rigidbody.velocity.y < fallValueMin && player_MotorMouvement != Player_MotorMouvement.WallRun)
         {
             // Le player state passe en état de fall 
             player_MouvementUp = Player_MouvementUp.Fall;

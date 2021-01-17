@@ -18,7 +18,7 @@ public class Player_Speed : MonoBehaviour
     public float gainValueMaxSpeed = 10f;
     public float deccelerationMaxSpeed = 10f;
 
-   [Header("Action Momentum")]
+    [Header("Action Momentum")]
     public int actionSucceed = 0;
     public float timeMomentum = 5f;
     public float currentTimeMomentum = 0f;
@@ -33,7 +33,7 @@ public class Player_Speed : MonoBehaviour
     private void Update()
     {
         MomentumGestion();
-       
+
     }
 
     /// <summary>
@@ -49,6 +49,10 @@ public class Player_Speed : MonoBehaviour
             {
                 momentumActive = false;
             }
+        }
+        else
+        {
+            DecrementeMaxSpeed();
         }
     }
 
@@ -66,7 +70,7 @@ public class Player_Speed : MonoBehaviour
     /// </summary>
     public void AccelerationPlayerSpeed()
     {
-        currentSpeed += (accelerationSpeed * multiplicateurAcceleration) * Time.deltaTime ;
+        currentSpeed += (accelerationSpeed * multiplicateurAcceleration) * Time.deltaTime;
         currentSpeed = Mathf.Clamp(currentSpeed, 0, maximumSpeed);
     }
 
@@ -78,7 +82,7 @@ public class Player_Speed : MonoBehaviour
     {
         actionSucceed++;
         currentTimeMomentum = timeMomentum;
-        maximumSpeed += gainValueMaxSpeed * timeValue;
+        maximumSpeed += gainValueMaxSpeed;
         momentumActive = true;
     }
 
@@ -87,7 +91,9 @@ public class Player_Speed : MonoBehaviour
     /// </summary>
     public void DecrementeMaxSpeed()
     {
+        
         maximumSpeed -= deccelerationMaxSpeed * Time.deltaTime;
+        maximumSpeed = Mathf.Clamp(maximumSpeed, minLimiteSpeed, Mathf.Infinity);
         actionSucceed = (int)(maximumSpeed / gainValueMaxSpeed);
     }
 

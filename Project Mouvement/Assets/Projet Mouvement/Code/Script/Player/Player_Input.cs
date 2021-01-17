@@ -25,9 +25,15 @@ public class Player_Input : Player_Settings
     public KeyCode EchapGp = KeyCode.Joystick1Button7;
     public KeyCode ChangeControllerGp = KeyCode.Joystick1Button9;
 
+    [HideInInspector]
+    public bool mouvementInputEnter;
+    public bool frontMouvementInputEnter;
+
     public void Update()
     {
         ChangeController();
+        CheckFrontMovementInput();
+        CheckMouvementInput();
     }
 
     //Change Type of Controller
@@ -36,6 +42,27 @@ public class Player_Input : Player_Settings
         if (GetInputPress(ChangeControllerPc) || GetInputPress(ChangeControllerGp))
         {
             IsGamepad = !IsGamepad;
+        }
+    }
+
+    private void CheckFrontMovementInput()
+    {
+        frontMouvementInputEnter = false;
+        if (GetInputPress(forwardPc) || GetInputPress(backPc) || GetAxeValue(FrontAxisGp) != 0)
+        {
+            frontMouvementInputEnter = true;
+            return;
+        }
+    }
+
+    private void CheckMouvementInput()
+    {
+        mouvementInputEnter = false;
+
+        if (GetInputPress(forwardPc) || GetInputPress(backPc)|| GetInputPress(leftPc)|| GetInputPress(rightPc) || GetAxeValue(FrontAxisGp) != 0 || GetAxeValue(SideAxisGp) != 0)
+        {
+            mouvementInputEnter = true;
+            return;
         }
     }
 

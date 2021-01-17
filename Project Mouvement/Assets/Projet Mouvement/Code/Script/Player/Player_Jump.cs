@@ -98,6 +98,7 @@ public class Player_Jump : Player_Settings
 
                 rigidbodyPlayer.velocity = rigidbodyPlayer.velocity + speedDir;
                 rigidbodyPlayer.velocity = Vector3.ClampMagnitude(rigidbodyPlayer.velocity, player_Speed.maximumSpeed + maxSpeedOfJump);
+                player_Speed.currentSpeed = new Vector3(rigidbodyPlayer.velocity.x, 0, rigidbodyPlayer.velocity.z).magnitude;
             }
 
 

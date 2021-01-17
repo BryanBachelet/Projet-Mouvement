@@ -8,21 +8,31 @@ using UnityEngine;
 [RequireComponent(typeof(Player_Input))]
 public class Player_WallRun : Player_Settings
 {
-    [Header("Input Setting")]
-    public KeyCode Forward = KeyCode.Z;
-    public KeyCode Back = KeyCode.S;
 
     //----- Variable -------------
 
     [Header("Debug")]
     public bool activeDebug = false;
 
+    [Header("Wall Run")]
+    public float timerReplace = 0.6f;
+
+    public float wallRunResetTimer = 0.7f;
+    public float minSpeedValueToWallRun = 5;
+
 
     //--- Systeme Variable---
-    
+
     private float enterSpeed;
     private float wallRunSide;
     private GameObject wallRunning;
+    //Lerp Position
+    private float t;
+    private float countDownLerp = 0f;
+
+    //Wall Run Reset
+    public float countdownWrReset = 0;
+    public bool isReset = true;
 
     //---- Essentiat Components Reference ----
     private Rigidbody rigidbodyPlayer;
@@ -49,53 +59,149 @@ public class Player_WallRun : Player_Settings
 
     private void Update()
     {
-        // Check if Wall Run est activé
-        // Check s'il y a un mur 
-        // Check les états du player
-        if(player_Surface == Player_Surface.Wall && player_MouvementUp == Player_MouvementUp.Fall && player_MotorMouvement != Player_MotorMouvement.WallRun)
+
+        // Enter in Wall Run
+        if (player_Surface == Player_Surface.Wall && player_MouvementUp == Player_MouvementUp.Fall && player_MotorMouvement != Player_MotorMouvement.WallRun && isReset)
         {
             if (activeDebug) Debug.Log("Enter Wall Ride");
-            // Check si l'angle du mur est à 90° degré
-            RaycastHit hit = new RaycastHit();
-            Physics.Raycast(transform.position, transform.right * player_CheckState.wallSide, out hit, 10f);
-            float angle = Vector3.Angle(Vector3.up, hit.normal);
-            if (activeDebug) Debug.Log("Angle = " + angle);
-            if (angle == 90)
-            { 
-                //Récupérer le côté du Wall Run
-                wallRunSide = player_CheckState.wallSide;
-            }
+
+            CheckWallAngle();
         }
 
 
         if (player_MotorMouvement == Player_MotorMouvement.WallRun)
         {
             //Quit Wall Run Fonction
-            CheckWallSide();
-            JumpQuit();
+            CheckWallSide(activeDebug);
 
+            // Jump to get ou wall run
+            JumpQuit(activeDebug);
+
+            //Check if front Wall
+            CheckFrontWall(activeDebug);
+            // Check la vitesse du joueur
+            CheckPlayerSpeed(activeDebug);
+
+            // Check Slide Input
+            SlideInput(activeDebug);
+
+            //  Check Input
+            InputCheck(activeDebug);
+
+            //Player Reposition
+            ReplacementPlayer();
+
+            //Player Acceleration 
+            AccelerationWallRun(activeDebug);
+
+            GetCurrentHorizontalSpeed(activeDebug);
             // Minimum Speed Wall Run
-            SetNewVelocitySpeed(10f, 10f);
+            SetNewVelocitySpeed();
+        }
+
+        //Timer Reset Player Wall Run
+        if (player_MotorMouvement != Player_MotorMouvement.WallRun)
+        {
+            if (!isReset)
+            {
+                if (countdownWrReset > wallRunResetTimer)
+                {
+                    isReset = true;
+                    countdownWrReset = 0;
+                }
+                countdownWrReset += Time.deltaTime;
+            }
         }
     }
 
+    #region Function of Exit
+
     //Quit Wall Run 
-    private void CheckWallSide()
+    private void CheckWallSide(bool debug)
     {
         if (player_CheckState.wallSide == 0)
         {
             DeactiveWallRun();
+            if (debug)
+            {
+                Debug.Assert(player_CheckState.wallSide == 0);
+                Debug.Log("No Wall Side");
+            }
+
         }
 
     }
 
     //Jump Wall Run
-    private void JumpQuit()
+    private void JumpQuit(bool debug)
     {
-        if (Input.GetKeyDown(KeyCode.JoystickButton0) || Input.GetKeyDown(KeyCode.Space))
+        if (player_Input.GetInputPress(player_Input.JumpPc) || player_Input.GetInputPress(player_Input.JumpGp))
         {
             player_Jump.Jump(Vector3.up + Vector3.right * 3 + Vector3.forward * 2, 20f);
+            if (debug)
+            {
+
+                Debug.Log("Jump End");
+            }
             DeactiveWallRun();
+        }
+    }
+
+
+    // Check if slide input is done 
+    private void SlideInput(bool debug)
+    {
+        if (player_Input.GetInputPress(player_Input.SlidePc) || player_Input.GetInputPress(player_Input.slideGp))
+        {
+            DeactiveWallRun();
+            if (debug)
+            {
+
+                Debug.Log("Slide End");
+            }
+        }
+    }
+
+    // Check if Front Wall
+    private void CheckFrontWall(bool debug)
+    {
+        if (Physics.Raycast(transform.position, transform.forward,2* player_Speed.currentSpeed * Time.deltaTime))
+        {
+            DeactiveWallRun();
+            if (debug)
+            {
+
+                Debug.Log("Mur en face");
+            }
+        }
+    }
+
+    //Check Player Speed 
+    private void CheckPlayerSpeed(bool debug)
+    {
+        if (player_Speed.currentSpeed < minSpeedValueToWallRun)
+        {
+            DeactiveWallRun();
+            if (debug)
+            {
+
+                Debug.Log("Low Speed");
+            }
+        }
+
+    }
+
+    // Check si un Input est réaliser
+    private void InputCheck(bool debug)
+    {
+        if (!player_Input.mouvementInputEnter)
+        {
+            DeactiveWallRun();
+            if (debug)
+            {
+
+                Debug.Log("No Input");
+            }
         }
     }
 
@@ -104,28 +210,85 @@ public class Player_WallRun : Player_Settings
     {
         SetGravity(true);
         player_MotorMouvement = Player_MotorMouvement.Null;
+        rigidbodyPlayer.AddForce(transform.right * (-wallRunSide) * 5, ForceMode.Impulse);
+        isReset = false;
     }
 
+    #endregion
+
+    #region Enter Function
     // Activate Wall Run
+
+    public void CheckWallAngle()
+    {
+        RaycastHit hit = new RaycastHit();
+        Physics.Raycast(transform.position, transform.right * player_CheckState.wallSide, out hit, 10f);
+        float angle = Vector3.Angle(Vector3.up, hit.normal);
+        if (activeDebug) Debug.Log("Angle = " + angle);
+        if (angle == 90)
+        {
+            //Récupérer le côté du Wall Run
+            wallRunSide = player_CheckState.wallSide;
+            //Activation du Wall Run State
+            if (player_MotorMouvement != Player_MotorMouvement.WallRun)
+            {
+                ActivateWallRun();
+                countDownLerp = 0;
+            }
+        }
+    }
+
     public void ActivateWallRun()
     {
         Debug.Log("Active Wall Run");
+        // Changement de state
         player_MotorMouvement = Player_MotorMouvement.WallRun;
+        player_MouvementUp = Player_MouvementUp.Null;
+        // Set Gravity 
         SetGravity(false);
-        GetCurrentHorizontalSpeed();
+
+        player_Speed.IncreamenteMaxSpeed(10f);
+
+        // Find Current Speed
+        GetCurrentHorizontalSpeed(activeDebug);
+        // Reset Direction of deplacement
         SetNewVelocitySpeed();
+        // Reset Jump Count
         player_Jump.RestJumpCount(activeDebug);
     }
 
+    #endregion
 
-    private void GetCurrentHorizontalSpeed()
+    #region System Function
+
+    /// <summary>
+    /// Récupère la vitesse actuelle de l'avatar
+    /// </summary>
+    private void GetCurrentHorizontalSpeed(bool debug)
     {
-        enterSpeed = new Vector3(rigidbodyPlayer.velocity.x, 0, rigidbodyPlayer.velocity.z).magnitude;
-        Debug.Log("Enter horizontal speed = " + enterSpeed.ToString("F0"));
+        enterSpeed = player_Speed.currentSpeed;
+        if (debug)
+            Debug.Log("Enter horizontal speed = " + enterSpeed.ToString("F0"));
     }
 
 
+    private void ReplacementPlayer()
+    {
+        // Lerp entre la position du joueur et la position souhaitée près du mur
+        // Calcul de la distance / pos à atteindre
+        Vector3 wallDir = transform.position - player_CheckState.hit.point;
+        Vector3 newPos = player_CheckState.hit.point + wallDir.normalized * 1f;
+        // Lerp de la position du joueur
+        transform.position = Vector3.Lerp(transform.position, newPos, t);
+        // Timer du lerp (Vitesse)
+        t = countDownLerp / timerReplace;
+        countDownLerp += Time.deltaTime;
+    }
 
+    /// <summary>
+    /// Récupère la direction du mur 
+    /// </summary>
+    /// <returns></returns>
     private Vector3 GetWallDirection()
     {
         RaycastHit hit;
@@ -135,6 +298,9 @@ public class Player_WallRun : Player_Settings
         return wallDir;
     }
 
+    /// <summary>
+    /// Reset la nouvelle velocité 
+    /// </summary>
     private void SetNewVelocitySpeed()
     {
         Vector3 wallDir = GetWallDirection();
@@ -144,6 +310,9 @@ public class Player_WallRun : Player_Settings
         Debug.Log("Velocity =" + rigidbodyPlayer.velocity);
     }
 
+    /// <summary>
+    /// Reset la nouvelle velocité 
+    /// </summary>
     private void SetNewVelocitySpeed(float speed, float speedMin)
     {
         if (speedMin > rigidbodyPlayer.velocity.magnitude)
@@ -155,14 +324,30 @@ public class Player_WallRun : Player_Settings
             Debug.Log("Velocity =" + rigidbodyPlayer.velocity);
         }
     }
-
-
-
-    private void SetGravity(bool isGravity)
+    /// <summary>
+    /// Accélération du player
+    /// </summary>
+    private void AccelerationWallRun(bool debug)
     {
-        rigidbodyPlayer.useGravity = isGravity;
-        Debug.Log("Gravity = " + rigidbodyPlayer.useGravity);
+        if (player_Input.GetInputPress(player_Input.forwardPc) || player_Input.GetAxeValue(player_Input.FrontAxisGp) > 0)
+        {
+            player_Speed.AccelerationPlayerSpeed();
+            if (debug)
+                Debug.Log("Acceleraction");
+            return;
+        }
+
+        if (player_Input.GetInputPress(player_Input.backPc) || player_Input.GetAxeValue(player_Input.FrontAxisGp) < 0)
+        {
+            player_Speed.DeccelerationPlayerSpeed();
+            if (debug)
+                Debug.Log("Decceleration");
+            return;
+        }
     }
+
+
+    #endregion
 
     #region Get Reference
 
@@ -263,8 +448,13 @@ public class Player_WallRun : Player_Settings
 
     #endregion
 
+    #region Tools
 
-    //----------- TOOLS ----------
+    private void SetGravity(bool isGravity)
+    {
+        rigidbodyPlayer.useGravity = isGravity;
+        Debug.Log("Gravity = " + rigidbodyPlayer.useGravity);
+    }
 
     private float SetNegativeAngle(float angle)
     {
@@ -292,4 +482,6 @@ public class Player_WallRun : Player_Settings
 
         return axisValue;
     }
+
+    #endregion 
 }
