@@ -247,9 +247,9 @@ public class Player_WallRun : Player_Settings
         // Set Gravity 
         SetGravity(false);
 
-        player_Speed.IncreamenteMaxSpeed(10f);
+        player_Speed.IncreamenteMaxSpeed();
 
-        // Find Current Speed
+        // Find Current Speed+
         GetCurrentHorizontalSpeed(activeDebug);
         // Reset Direction of deplacement
         SetNewVelocitySpeed();

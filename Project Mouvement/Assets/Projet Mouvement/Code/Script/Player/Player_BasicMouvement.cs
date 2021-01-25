@@ -51,7 +51,7 @@ public class Player_BasicMouvement : Player_Settings
 
     void FixedUpdate()
     {
-        if (player_Surface != Player_Surface.Grounded || player_MouvementUp == Player_MouvementUp.Jump) return;
+        if (player_Surface != Player_Surface.Grounded || player_MouvementUp == Player_MouvementUp.Jump || player_MotorMouvement == Player_MotorMouvement.Slide) return;
 
         Vector3 inputDir = new Vector3(side, 0, front).normalized;
 

@@ -73,14 +73,14 @@ public class Camera_Controlle : Player_Settings
 
 
             Vector3 playerRot = new Vector3(playerBody.transform.rotation.eulerAngles.x, currentRot.y, playerBody.transform.rotation.eulerAngles.z);
-           
+
             transform.rotation = Quaternion.Euler(currentRot);
-            if (player_MotorMouvement != Player_MotorMouvement.WallRun)
+            if (player_MotorMouvement != Player_MotorMouvement.WallRun || player_MotorMouvement != Player_MotorMouvement.Slide )
             {
                 //playerBody.rotation = Quaternion.Euler(playerRot);
                 playerBody.rotation = Quaternion.Euler(playerRot);
-               // playerBody.Rotate(transform.up,addRot.y,Space.Self) ; 
-                
+                // playerBody.Rotate(transform.up,addRot.y,Space.Self) ; 
+
             }
         }
         transform.position = playerBody.position + offSetCurrent;
@@ -106,6 +106,12 @@ public class Camera_Controlle : Player_Settings
             {
                 offSetToMove = new Vector3(0, 1, 0);
             }
+        }
+
+        if (player_MotorMouvement == Player_MotorMouvement.Slide)
+        {
+            transform.position = playerBody.position + offSetCurrent + (Vector3.down * 0.5f);
+
         }
 
     }

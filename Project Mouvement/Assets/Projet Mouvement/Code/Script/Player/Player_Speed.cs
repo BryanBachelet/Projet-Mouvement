@@ -65,6 +65,12 @@ public class Player_Speed : MonoBehaviour
         currentSpeed = Mathf.Clamp(currentSpeed, 0, maximumSpeed);
     }
 
+    public void DeccelerationPlayerSpeed(float decceleration)
+    {
+        currentSpeed -= decceleration * Time.deltaTime;
+        currentSpeed = Mathf.Clamp(currentSpeed, 0, maximumSpeed);
+    }
+
     /// <summary>
     /// Augmente la vitesse actuelle de l'avatar
     /// </summary>
@@ -74,11 +80,17 @@ public class Player_Speed : MonoBehaviour
         currentSpeed = Mathf.Clamp(currentSpeed, 0, maximumSpeed);
     }
 
+    public void AccelerationPlayerSpeed(float acceleration)
+    {
+        currentSpeed += (acceleration * multiplicateurAcceleration) * Time.deltaTime;
+        currentSpeed = Mathf.Clamp(currentSpeed, 0, maximumSpeed);
+    }
+
     /// <summary>
     /// Augmente la vitesse maximum possible pour l'avatar
     /// </summary>
     /// <param name="timeValue"></param>
-    public void IncreamenteMaxSpeed(float timeValue)
+    public void IncreamenteMaxSpeed()
     {
         actionSucceed++;
         currentTimeMomentum = timeMomentum;
